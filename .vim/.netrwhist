@@ -1,0 +1,9 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =7
+let g:netrw_dirhist_1='/Users/nkws/lunchLog/VagrantTreasure2015/puppet'
+let g:netrw_dirhist_2='/Users/nkws/.vim/bundle'
+let g:netrw_dirhist_3='/usr/share/vim'
+let g:netrw_dirhist_4='/Users/nkws/Documents/プログラミング学習'
+let g:netrw_dirhist_5='/Users/nkws/.vim/bundle/phpcomplete.vim'
+let g:netrw_dirhist_6='/Users/nkws/.vim/bundle/nerdtree'
+let g:netrw_dirhist_7='/Users/nkws/.vim/bundle/vim-snippets/php_function.snip'
