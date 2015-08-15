@@ -25,6 +25,8 @@ NeoBundle 'tpope/vim-endwise'
 
 " コメントON/OFFを手軽に実行
 NeoBundle 'tomtom/tcomment_vim'
+NeoBundle 'The-NERD-Commenter'
+
 
 " シングルクオートとダブルクオートの入れ替え等csコマンド
 NeoBundle 'tpope/vim-surround'
@@ -79,7 +81,8 @@ let g:neocomplete#enable_smart_case = 1
 " Set minimum syntax keyword length.
 let g:neocomplete#sources#syntax#min_keyword_length = 3
 let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
- 
+let g:neocomplete_php_locale = 'ja'
+
 " Define dictionary.
 let g:neocomplete#sources#dictionary#dictionaries = {
             \ 'default' : '',
@@ -142,7 +145,7 @@ autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
 autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
 "let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
 
-
+" :PhpMakeDict ja をVimを開いた時に一度だけ実行する
 NeoBundle 'violetyk/neocomplete-php.vim'
 let g:neocomplete_php_locale = 'ja'
 
@@ -172,10 +175,40 @@ endif
 let g:neosnippet#enable_snipmate_compatibility = 1
 
 " Tell Neosnippet about the other snippets
-let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets'
+let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/php_function.snip'
 
 
 
+
+" ファイルオープンを便利に
+NeoBundle 'Shougo/unite.vim'
+" Unite.vimで最近使ったファイルを表示できるようにする
+NeoBundle 'Shougo/neomru.vim'
+
+" http://blog.remora.cx/2010/12/vim-ref-with-unite.html
+""""""""""""""""""""""""""""""
+" Unit.vimの設定
+""""""""""""""""""""""""""""""
+" 入力モードで開始する
+let g:unite_enable_start_insert=1
+" バッファ一覧
+noremap <C-P> :Unite buffer<CR>
+" ファイル一覧
+noremap <C-N> :Unite -buffer-name=file file<CR>
+" 最近使ったファイルの一覧
+noremap <C-Z> :Unite file_mru<CR>
+" sourcesを「今開いているファイルのディレクトリ」とする
+noremap :uff :<C-u>UniteWithBufferDir file -buffer-name=file<CR>
+" ウィンドウを分割して開く
+au FileType unite nnoremap <silent> <buffer> <expr> <C-J> unite#do_action('split')
+au FileType unite inoremap <silent> <buffer> <expr> <C-J> unite#do_action('split')
+" ウィンドウを縦に分割して開く
+au FileType unite nnoremap <silent> <buffer> <expr> <C-K> unite#do_action('vsplit')
+au FileType unite inoremap <silent> <buffer> <expr> <C-K> unite#do_action('vsplit')
+" ESCキーを2回押すと終了する
+au FileType unite nnoremap <silent> <buffer> <ESC><ESC> :q<CR>
+au FileType unite inoremap <silent> <buffer> <ESC><ESC> <ESC>:q<CR>
+""""""""""""""""""""""""""""""
 
 
 NeoBundle 'rcmdnk/vim-markdown'
@@ -212,6 +245,26 @@ let g:markdown_fenced_languages = [
 
 set hlsearch
 set number
+
+"インデントとタブ
+set tabstop=2 "画面上でタブ文字が占める幅
+set shiftwidth=2 "自動インデントでずれる幅
+set softtabstop=2 "連続した空白に対してタブキーやバックスペースキーでカーソルが動く幅
+set autoindent "改行時に前の行のインデントを継続する
+
+"クリップボードにコピーする
+set clipboard=unnamed,autoselect
+
+"==========================
+""NERDcommenter.vim
+"==========================
+" let NERDSpaceDelims = 1
+let NERDShutUp = 1
+let NERDSpaceDelims = 1
+nmap ,, <Plug>NERDCommenterToggle
+vmap ,, <Plug>NERDCommenterToggle
+
+
 syntax enable
 hi PmenuSel cterm=reverse ctermfg=33 ctermbg=222 gui=reverse guifg=#3399ff guibg=#f0e68c]]]]
 
