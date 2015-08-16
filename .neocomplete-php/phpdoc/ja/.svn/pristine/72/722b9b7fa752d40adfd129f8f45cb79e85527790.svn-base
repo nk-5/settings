@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: 324373 Maintainer: takagi Status: ready -->
+<section xml:id="internals2.opcodes.declare-const">
+ <title>DECLARE_CONST</title>
+ <section xml:id="internals2.opcodes.declare-const.code">
+  <title>PHP コード</title>
+  <programlisting role="php">
+   <![CDATA[
+<?php 
+/*
+ * 
+ * opcode number: 143
+ * No sample PHP yet */
+?>
+]]>
+  </programlisting>
+ </section>
+</section>

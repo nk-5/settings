@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: 336600 Maintainer: hirokawa Status: ready -->
+<!-- CREDITS: shimooka -->
+<section xml:id="zip.installation" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ &reftitle.install;
+
+ <section xml:id="zip.installation.new">
+  <title>PHP 5.2.0 以降</title>
+
+  <section xml:id="zip.installation.new.linux">
+   <title>Linux systems</title>
+   <para>
+    これらの関数を利用するには、設定オプション
+    <option role="configure">--enable-zip</option> を使用して
+    zip サポートを有効にして PHP をコンパイルしなければなりません。
+   </para>
+   <para>
+    PHP 5.6.0 からは、<option role="configure">--with-libzip=DIR</option>
+    オプションが追加されました。これを指定すると、システムにインストールされた libzip を利用します。
+    libzip 0.11 以降が必要です。0.11.2 以降を推奨します。
+   </para>
+  </section>
+
+  <section xml:id="zip.installation.new.windows">
+   <title>Windows</title>
+   <para>
+    Windows ユーザーは、これらの関数を使用するために &php.ini;
+    内の <filename>php_zip.dll</filename> を有効にする必要があります。
+   </para>
+  </section>
+ </section>
+
+ <section xml:id="zip.pecl.installation">
+  <title>PECL 経由でのインストール</title>
+  <para>
+   &pecl.info;
+   <link xlink:href="&url.pecl.package;zip">&url.pecl.package;zip</link>.
+  </para>
+ </section>
+
+</section>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

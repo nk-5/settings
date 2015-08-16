@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: 331319 Maintainer: takagi Status: ready -->
+<!-- CREDITS: satoruyoshida -->
+<!-- Part titles used mostly in manual.xml itself -->
+<!ENTITY PHPManual            "PHP マニュアル">
+<!ENTITY Seealso              "参考">
+<!ENTITY Date                 "日付:">
+<!ENTITY GettingStarted       "はじめに">
+<!ENTITY InstallAndConfigure  "インストールと設定">
+<!ENTITY Installation         "インストール">
+<!ENTITY LanguageReference    "言語リファレンス">
+<!ENTITY Features             "機能">
+<!ENTITY Security             "セキュリティ">
+<!ENTITY FunctionReference    "関数リファレンス">
+<!ENTITY VariableandTypeRelatedExtensions         "変数・データ型関連">
+<!ENTITY TextProcessing                           "テキスト処理">
+<!ENTITY AffectingPHPsBehaviour                   "PHP の振る舞いの変更">
+<!ENTITY SessionExtensions                        "セッション関連">
+<!ENTITY OtherBasicExtensions                     "その他の基本モジュール">
+<!ENTITY DatabaseExtensions                       "データベース関連">
+<!ENTITY AbstractionLayers                        "抽象化レイヤー">
+<!ENTITY VendorSpecificDatabaseExtensions         "ベンダー固有のモジュール">
+<!ENTITY XMLManipulation                          "XML 操作">
+<!ENTITY WebServices                              "ウェブサービス">
+<!ENTITY CreditCardProcessing                     "クレジットカード処理">
+<!ENTITY MathematicalExtensions                   "数学">
+<!ENTITY CryptographyExtensions                   "暗号">
+<!ENTITY HumanLanguageandCharacterEncodingSupport "自然言語および文字エンコーディング">
+<!ENTITY FileSystemRelatedExtensions              "ファイルシステム">
+<!ENTITY ProcessControlExtensions                 "プロセス制御">
+<!ENTITY MailRelatedExtensions                    "メール関連">
+<!ENTITY AuthenticationServices                   "認証サービス">
+<!ENTITY OtherServices                            "その他のサービス">
+<!ENTITY CompressionExtensions                    "圧縮およびアーカイブ">
+<!ENTITY CalendarandEventRelatedExtensions        "日付および時刻関連">
+<!ENTITY NonTextMIMEOutput                        "テキスト以外の MIME 型">
+<!ENTITY ImageProcessingandGeneration             "画像処理および作成">
+<!ENTITY AudioFormatsManipulation                 "音声フォーマットの操作">
+<!ENTITY CommandLineSpecificExtensions            "コマンドライン関連">
+<!ENTITY WindowsOnlyExtensions                    "Windows 用のモジュール">
+<!ENTITY ServerSpecificExtensions                 "サーバー固有のモジュール">
+<!ENTITY SearchEngineExtensions                   "検索エンジン用の拡張モジュール">
+<!ENTITY MiscExtensions                           "その他">
+<!ENTITY Appendices           "付録">
+<!ENTITY PEAR                 "PEAR: the PHP Extension and Application Repository">
+<!ENTITY FAQ                  "FAQ: よくある質問">
+<!ENTITY FAQabbrev            "FAQ">
+<!ENTITY Internals            "PHP および Zend エンジンの内部構造">
+<!ENTITY Internals2           "PHP のコア: ハッカーの手引き">
+<!ENTITY ZendAPI              "Zend API: PHP のコアをハックする">
+<!ENTITY IndexListing      "索引">
+<!ENTITY FunctionListing   "関数・メソッド">
+<!ENTITY FunctionListingDescription   "マニュアル内の全関数およびメソッドの一覧">
+<!ENTITY ExampleListing    "サンプル">
+<!ENTITY ExampleListingDescription   "マニュアル内の全サンプルの一覧">
+<!ENTITY ChangelogListingTitle "変更履歴">
+<!ENTITY ChangelogListingDescription "この拡張モジュールのクラス/関数/メソッドには次のような変更がありました。">
+<!ENTITY ChangelogListingBundledDescription "標準添付の拡張モジュールには次のような変更がありました。">
+<!ENTITY CHMEdition           "HTML ヘルプ版">
+<!ENTITY ReservedConstants    "定義済みの定数">
+<!ENTITY MissingStuff         "未定義のもの">
+<!ENTITY AndSeveralOthers     "その他">
+<!ENTITY Version              "バージョン">
+<!ENTITY Description          "説明">
+<!ENTITY Changeable           "変更可能">
+<!ENTITY ConfigureOptions     "設定オプション">
+<!ENTITY Default              "デフォルト">
+<!ENTITY Definition           "定義">
+<!ENTITY Functions            "関数">
+<!ENTITY Name                 "名前">
+<!ENTITY Alias                "のエイリアス">
+<!ENTITY Type                 "型">
+<!ENTITY Changelog            "変更履歴">
+<!ENTITY Methods              "メソッド">
+<!ENTITY InheritedMethods     "継承したメソッド">
+<!ENTITY InheritedProperties  "継承したプロパティ">
+<!ENTITY Properties           "プロパティ">
+<!ENTITY Constants            "定数">
+<!ENTITY NotAvailable         "利用できません">
+
+<!-- These are using in reference/$extname/reference.xml and other
+supplemental files to mark section titles -->
+<!ENTITY reftitle.changelog    '<title xmlns="http://docbook.org/ns/docbook">&Changelog;</title>'>
+<!ENTITY reftitle.classes      '<title xmlns="http://docbook.org/ns/docbook">定義済みクラス</title>'>
+<!ENTITY reftitle.classsynopsis '<title xmlns="http://docbook.org/ns/docbook">クラス概要</title>'>
+<!ENTITY reftitle.constants    '<title xmlns="http://docbook.org/ns/docbook">定義済み定数</title>'>
+<!ENTITY reftitle.constructor  '<title xmlns="http://docbook.org/ns/docbook">コンストラクタ</title>'>
+<!ENTITY reftitle.description  '<title xmlns="http://docbook.org/ns/docbook">説明</title>'>
+<!ENTITY reftitle.encoding     '<title xmlns="http://docbook.org/ns/docbook">エンコーディング</title>'>
+<!ENTITY reftitle.examples     '<title xmlns="http://docbook.org/ns/docbook">例</title>'>
+<!ENTITY reftitle.exceptions   '<title xmlns="http://docbook.org/ns/docbook">例外</title>'>
+<!ENTITY reftitle.errors       '<title xmlns="http://docbook.org/ns/docbook">エラー / 例外</title>'>
+<!ENTITY reftitle.faq          '<title xmlns="http://docbook.org/ns/docbook">&FAQ;</title>'>
+<!ENTITY reftitle.install      '<title xmlns="http://docbook.org/ns/docbook">インストール手順</title>'>
+<!ENTITY reftitle.intro        '<title xmlns="http://docbook.org/ns/docbook">導入</title>'>
+<!ENTITY reftitle.indices      '<title xmlns="http://docbook.org/ns/docbook">インデックス</title>'>
+<!ENTITY reftitle.interfacesynopsis '<title xmlns="http://docbook.org/ns/docbook">インターフェイス概要</title>'>
+<!ENTITY reftitle.methods      '<title xmlns="http://docbook.org/ns/docbook">メソッド</title>'>
+<!ENTITY reftitle.mysqlnd      '<title xmlns="http://docbook.org/ns/docbook">MySQL ネイティブドライバ限定</title>'>
+<!ENTITY reftitle.notes        '<title xmlns="http://docbook.org/ns/docbook">注意</title>'>
+<!ENTITY reftitle.parameters   '<title xmlns="http://docbook.org/ns/docbook">パラメータ</title>'>
+<!ENTITY reftitle.options      '<title xmlns="http://docbook.org/ns/docbook">オプション</title>'>
+<!ENTITY reftitle.properties   '<title xmlns="http://docbook.org/ns/docbook">プロパティ</title>'>
+<!ENTITY reftitle.required     '<title xmlns="http://docbook.org/ns/docbook">要件</title>'>
+<!ENTITY reftitle.resources    '<title xmlns="http://docbook.org/ns/docbook">リソース型</title>'>
+<!ENTITY reftitle.runtime      '<title xmlns="http://docbook.org/ns/docbook">実行時設定</title>'>
+<!ENTITY reftitle.returnvalues '<title xmlns="http://docbook.org/ns/docbook">返り値</title>'>
+<!ENTITY reftitle.seealso      '<title xmlns="http://docbook.org/ns/docbook">参考</title>'>
+<!ENTITY reftitle.setup        '<title xmlns="http://docbook.org/ns/docbook">インストール/設定</title>'>
+<!ENTITY reftitle.unicode      '<title xmlns="http://docbook.org/ns/docbook">Unicode</title>'>
+<!ENTITY reftitle.usage        '<title xmlns="http://docbook.org/ns/docbook">利用法</title>'>

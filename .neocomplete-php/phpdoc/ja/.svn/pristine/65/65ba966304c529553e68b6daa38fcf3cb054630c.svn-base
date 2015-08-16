@@ -1,0 +1,1553 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: 335023 Maintainer: takagi Status: ready -->
+<chapter xml:id="language.namespaces" xmlns="http://docbook.org/ns/docbook"
+ version="1.1">
+ <title>名前空間</title>
+
+ <sect1 xml:id="language.namespaces.rationale">
+  <title>名前空間の概要</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <simpara>
+   名前空間とは何でしょう? 広義の「名前空間」とは、項目をカプセル化するもののことです。
+   これは多くの場面で見られる抽象概念です。
+   たとえば、たいていの OS はディレクトリでファイルをグループ化します。
+   この場合、ディレクトリがその中のファイルの名前空間として機能しています。
+   具体的に言うと、<literal>foo.txt</literal> というファイルは
+   <literal>/home/greg</literal> と <literal>/home/other</literal>
+   の両方に存在することが可能ですが、それらふたつの
+   <literal>foo.txt</literal> を同じディレクトリに配置することはできません。
+   さらに、<literal>/home/greg</literal> ディレクトリの外から
+   <literal>foo.txt</literal> にアクセスするには、ディレクトリ名をファイル名の前につけて
+   <literal>/home/greg/foo.txt</literal> としなければなりません。
+   プログラミングの世界における名前空間も、この延長線上にあります。
+  </simpara>
+  <simpara>
+   PHP の世界では、名前空間は次のふたつの問題を解決するための手段として用意されています。
+   ライブラリやアプリケーションの作者が、
+   クラスや関数といった再利用可能なコード部品を作ろうとするときにこれらの問題にぶちあたることになります。
+  </simpara>
+  <para>
+   <orderedlist>
+    <listitem>
+     <simpara>
+      あなたが作成したコードと PHP の組み込みのクラス/関数/定数
+      あるいはサードパーティのクラス/関数/定数の名前が衝突する
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      最初の問題を解決するためには、Extra_Long_Names のような長い名前をつけなければならない
+     </simpara>
+    </listitem>
+   </orderedlist>
+  </para>
+  <simpara>
+   PHP の名前空間は、関連するクラスやインターフェイス、関数、そして定数をひとまとめにして扱うものです。
+   PHP の名前空間構文の例を見てみましょう。
+  </simpara>
+  <example>
+   <title>名前空間構文の例</title>
+   <programlisting role="php">
+   <![CDATA[
+<?php
+namespace my\name; // "名前空間の定義" を参照ください
+
+class MyClass {}
+function myfunction() {}
+const MYCONST = 1;
+
+$a = new MyClass;
+$c = new \my\name\MyClass; // "グローバル空間" を参照ください
+
+$a = strlen('hi'); // "名前空間の使用法: グローバル関数/定数への
+                   // 移行" を参照ください
+
+$d = namespace\MYCONST; // "namespace 演算子および __NAMESPACE__ 定数"
+                        // を参照ください
+$d = __NAMESPACE__ . '\MYCONST';
+echo constant($d); // "名前空間および動的言語機能" を参照ください
+?>
+    ]]>
+   </programlisting>
+  </example>
+  <note>
+   <para>
+    名前空間の名前として <literal>PHP</literal> や <literal>php</literal> は使えません。これらで始まる名前
+    (<literal>PHP\Classes</literal> など) も同様です。
+    これらの名前は言語の内部で使うために予約されており、ユーザーのコードで使うことはできません。
+   </para>
+  </note>
+ </sect1>
+
+ <sect1 xml:id="language.namespaces.definition">
+  <title>名前空間の定義</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   PHP のコードならなんでも名前空間に含めることができますが、
+   実際に名前空間の影響を受けるのはクラス (抽象クラスやトレイトを含む) とインターフェイス、関数、そして定数だけです。
+  </para>
+  <para>
+   名前空間を宣言するには、キーワード <literal>namespace</literal>
+   を使用します。名前空間を含むファイルでは、他のコードより前にファイルの先頭で名前空間を宣言しなければなりません。
+   ただし <xref linkend="control-structures.declare" /> キーワードは例外です。
+   <example>
+    <title>名前空間の宣言</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace MyProject;
+
+const CONNECT_OK = 1;
+class Connection { /* ... */ }
+function connect() { /* ... */  }
+
+?>
+]]>
+    </programlisting>
+   </example>
+   名前空間の宣言より前に書くことが許されているコードは
+   <literal>declare</literal> 文のみです。ソースファイルのエンコーディングを定義するために使用します。
+   さらに、PHP コード以外であっても名前空間の宣言の前に記述することはできません (スペースも同様です)。
+   <example>
+    <title>名前空間の宣言</title>
+    <programlisting role="php">
+     <![CDATA[
+<html>
+<?php
+namespace MyProject; // fatal error - namespace must be the first statement in the script
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   さらに、他の PHP の制御構造とは異なり、同一の名前空間を複数のファイルで定義することができます。
+   これにより、ひとつの名前空間の内容をファイルシステム上で分割することができます。
+  </para>
+ </sect1>
+ <sect1 xml:id="language.namespaces.nested">
+  <title>サブ名前空間の宣言</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   ディレクトリやファイルと同様、PHP の名前空間においても名前空間の階層構造を指定することができます。
+   このようにして名前空間を定義します。
+   <example>
+    <title>階層つきの名前空間の宣言</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace MyProject\Sub\Level;
+
+const CONNECT_OK = 1;
+class Connection { /* ... */ }
+function connect() { /* ... */  }
+
+?>
+]]>
+    </programlisting>
+   </example>
+   上の例は、定数 <literal>MyProject\Sub\Level\CONNECT_OK</literal>
+   とクラス <literal>MyProject\Sub\Level\Connection</literal>、
+   そして関数 <literal>MyProject\Sub\Level\connect</literal> を作成します。
+  </para>
+ </sect1>
+ <sect1 xml:id="language.namespaces.definitionmultiple">
+  <title>同一ファイル内での複数の名前空間の定義</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   複数の名前空間を同一ファイル内で宣言することもあります。
+   この場合の構文は次の 2 通りです。
+  </para>
+  <para>
+   <example>
+    <title>シンプルな組み合わせ方式による複数の名前空間の宣言</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace MyProject;
+
+const CONNECT_OK = 1;
+class Connection { /* ... */ }
+function connect() { /* ... */  }
+
+namespace AnotherProject;
+
+const CONNECT_OK = 1;
+class Connection { /* ... */ }
+function connect() { /* ... */  }
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   この構文は、複数の名前空間をひとつのファイルに含める場合の方法としてはお勧めしません。
+   かわりに、次の波括弧構文を使うことを推奨します。
+  </para>
+  <para>
+   <example>
+    <title>波括弧構文による複数の名前空間の宣言</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace MyProject {
+
+const CONNECT_OK = 1;
+class Connection { /* ... */ }
+function connect() { /* ... */  }
+}
+
+namespace AnotherProject {
+
+const CONNECT_OK = 1;
+class Connection { /* ... */ }
+function connect() { /* ... */  }
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   ただ、複数の名前空間をひとつのファイルに記述するようなコーディングはできるだけ避けるべきです。
+   主な使い道としては、複数の PHP スクリプトをひとつのファイルにまとめるときくらいでしょう。
+  </para>
+  <para>
+   名前空間に属さないグローバルなコードを名前空間つきのコードと組み合わせるときには、
+   波括弧構文しか使用できません。グローバルなコードは、名前空間の名前を指定しない
+   namespace 文で囲みます。たとえば次のようになります。
+   <example>
+    <title>複数の名前空間および名前空間に属さないコードの宣言</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace MyProject {
+
+const CONNECT_OK = 1;
+class Connection { /* ... */ }
+function connect() { /* ... */  }
+}
+
+namespace { // グローバルコード
+session_start();
+$a = MyProject\connect();
+echo MyProject\Connection::start();
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   namespace の波括弧の外側に書くことができる PHP コードは、最初の declare 文だけです。
+   <example>
+    <title>複数の名前空間および名前空間に属さないコードの宣言</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+declare(encoding='UTF-8');
+namespace MyProject {
+
+const CONNECT_OK = 1;
+class Connection { /* ... */ }
+function connect() { /* ... */  }
+}
+
+namespace { // global code
+session_start();
+$a = MyProject\connect();
+echo MyProject\Connection::start();
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </sect1>
+ <sect1 xml:id="language.namespaces.basics">
+  <title>名前空間の使用法: 基本編</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   名前空間の使い方についてあれこれ言う前に、まずは
+   PHP がどのようにしてコード中の要素の名前空間を知るのかを理解しておくことが重要です。
+   PHP の名前空間は、ファイルシステムにたとえて考えることができます。
+   たとえば、ファイルシステム内のファイルにアクセスするには次の 3 つの方法があります。
+   <orderedlist>
+    <listitem>
+     <simpara>
+      <literal>foo.txt</literal> のような相対ファイル名を使う。これは
+      <literal>currentdirectory/foo.txt</literal> と解釈されます。ここで、
+      currentdirectory は現在いるディレクトリを表します。したがって、カレントディレクトリが
+      <literal>/home/foo</literal> であった場合はこれは <literal>/home/foo/foo.txt</literal>
+      となります。
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <literal>subdirectory/foo.txt</literal> のような相対パス名を使う。これは
+      <literal>currentdirectory/subdirectory/foo.txt</literal> と解釈されます。
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <literal>/main/foo.txt</literal> のような絶対パス名を使う。これは
+      <literal>/main/foo.txt</literal> と解釈されます。
+     </simpara>
+    </listitem>
+   </orderedlist>
+   PHP の名前空間内の要素についても同じ理屈があてはまります。
+   たとえば、クラス名を参照するには次の 3 つの方法があります。
+   <orderedlist>
+    <listitem>
+     <simpara>
+      <literal>$a = new foo();</literal> あるいは
+      <literal>foo::staticmethod();</literal> のような非修飾名
+      あるいはプレフィックスなしのクラス名。
+      現在の名前空間が <literal>currentnamespace</literal> である場合、これは
+      <literal>currentnamespace\foo</literal> と解釈されます。
+      名前空間に属さないグローバルなコードにおいては、これは
+      <literal>foo</literal> と解釈されます。
+     </simpara>
+     <simpara>
+      注意: 修飾されていない関数や定数は、名前空間内にその関数や定数がなければ
+      グローバルな関数あるいは変数とみなされます。詳細は
+      <link linkend="language.namespaces.fallback">名前空間の使用法:
+      グローバルな関数/定数への移行</link> を参照ください。
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <literal>$a = new subnamespace\foo();</literal> あるいは
+      <literal>subnamespace\foo::staticmethod();</literal> のような修飾名
+      あるいはプレフィックスつきクラス名。
+      現在の名前空間が <literal>currentnamespace</literal> である場合、これは
+      <literal>currentnamespace\subnamespace\foo</literal> と解釈されます。
+      名前空間に属さないグローバルなコードにおいては、これは
+      <literal>subnamespace\foo</literal> と解釈されます。
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <literal>$a = new \currentnamespace\foo();</literal> あるいは
+      <literal>\currentnamespace\foo::staticmethod();</literal> のような完全修飾名
+      あるいはグローバルプレフィックス演算子つきのクラス名。
+      これは、常にコードで記述されたとおりの名前である
+      <literal>currentnamespace\foo</literal> と解釈されます。
+     </simpara>
+    </listitem>
+   </orderedlist>
+  </para>
+  <para>
+   これら 3 つの構文を実際のコードで使う例を次に示します。
+   <informalexample>
+    <simpara>file1.php</simpara>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace Foo\Bar\subnamespace;
+
+const FOO = 1;
+function foo() {}
+class foo
+{
+    static function staticmethod() {}
+}
+?>
+     ]]>
+    </programlisting>
+    <simpara>file2.php</simpara>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace Foo\Bar;
+include 'file1.php';
+
+const FOO = 2;
+function foo() {}
+class foo
+{
+    static function staticmethod() {}
+}
+
+/* 非修飾名 */
+foo(); // Foo\Bar\foo 関数と解釈されます
+foo::staticmethod(); // Foo\Bar\foo クラスの staticmethod メソッドと解釈されます
+echo FOO; // 定数 Foo\Bar\FOO と解釈されます
+
+/* 修飾名 */
+subnamespace\foo(); // Foo\Bar\subnamespace\foo 関数と解釈されます
+subnamespace\foo::staticmethod(); // Foo\Bar\subnamespace\foo クラスの
+                                  // staticmethod メソッドと解釈されます
+echo subnamespace\FOO; // 定数 Foo\Bar\subnamespace\FOO と解釈されます
+                                  
+/* 完全修飾名 */
+\Foo\Bar\foo(); // Foo\Bar\foo 関数と解釈されます
+\Foo\Bar\foo::staticmethod(); // Foo\Bar\foo クラスの staticmethod メソッドと解釈されます
+echo \Foo\Bar\FOO; // 定数 Foo\Bar\FOO と解釈されます
+?>
+     ]]>
+    </programlisting>
+   </informalexample>
+  </para>
+  <para>
+   グローバルなクラス、関数あるいは定数にアクセスするには、完全修飾名を使用して
+   <function>\strlen</function>、<classname>\Exception</classname> あるいは
+   <literal>\INI_ALL</literal> などとすることができます。
+   <example>
+    <title>グローバルなクラス、関数および定数への名前空間内からのアクセス</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace Foo;
+
+function strlen() {}
+const INI_ALL = 3;
+class Exception {}
+
+$a = \strlen('hi'); // グローバル関数 strlen をコールします
+$b = \INI_ALL; // グローバル定数 INI_ALL にアクセスします
+$c = new \Exception('error'); // グローバルクラス Exception のインスタンスを作成します
+?>
+     ]]>
+    </programlisting>
+   </example>
+  </para>
+ </sect1>
+ <sect1 xml:id="language.namespaces.dynamic">
+  <title>名前空間と動的言語機能</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   PHP における名前空間の実装は、PHP 自身が動的プログラミング言語であるという性質に影響を受けています。
+   したがって、次の例のようなコードを名前空間を使って書き直すには
+   <example>
+    <title>要素への動的なアクセス</title>
+    <simpara>example1.php:</simpara>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+class classname
+{
+    function __construct()
+    {
+        echo __METHOD__,"\n";
+    }
+}
+function funcname()
+{
+    echo __FUNCTION__,"\n";
+}
+const constname = "global";
+
+$a = 'classname';
+$obj = new $a; // classname::__construct と表示します
+$b = 'funcname';
+$b(); // funcname と表示します
+echo constant('constname'), "\n"; // global と表示します
+?>
+    ]]>
+    </programlisting>
+   </example>
+   完全修飾名 (クラス名に名前空間プレフィックスをつけたもの) を使う必要があります。
+   動的なクラス名、関数名あるいは定数名においては修飾名と完全修飾名に差はないので、
+   先頭のバックスラッシュはなくてもかまいません。
+   <example>
+    <title>名前空間つき要素への動的なアクセス</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace namespacename;
+class classname
+{
+    function __construct()
+    {
+        echo __METHOD__,"\n";
+    }
+}
+function funcname()
+{
+    echo __FUNCTION__,"\n";
+}
+const constname = "namespaced";
+
+include 'example1.php';
+
+$a = 'classname';
+$obj = new $a; // classname::__construct と表示します
+$b = 'funcname';
+$b(); // funcname と表示します
+echo constant('constname'), "\n"; // global と表示します
+
+/* ダブルクォートを使う場合は "\\namespacename\\classname" としなければなりません */
+$a = '\namespacename\classname';
+$obj = new $a; // namespacename\classname::__construct と表示します
+$a = 'namespacename\classname';
+$obj = new $a; // これも namespacename\classname::__construct と表示します
+$b = 'namespacename\funcname';
+$b(); // namespacename\funcname と表示します
+$b = '\namespacename\funcname';
+$b(); // これも namespacename\funcname と表示します
+echo constant('\namespacename\constname'), "\n"; // namespaced と表示します
+echo constant('namespacename\constname'), "\n"; // これも namespaced と表示します
+?>
+    ]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <link linkend="language.namespaces.faq.quote">
+   文字列中の名前空間名のエスケープに関する注意</link>
+   を読んでおくことを忘れないようにしましょう。
+  </para>
+ </sect1>
+ <sect1 xml:id="language.namespaces.nsconstants">
+  <title>namespace キーワードおよび __NAMESPACE__ 定数</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   PHP には、現在の名前空間内の要素へのアクセスを抽象化するための方法が 2 通りあります。
+   マジック定数 <constant>__NAMESPACE__</constant> および <literal>namespace</literal>
+   キーワードがそれです。
+  </para>
+  <para>
+   <constant>__NAMESPACE__</constant> の値は文字列で、現在の名前空間の名前が格納されます。
+   名前空間に属さないグローバルなコードでは、この中身は空文字列となります。
+   <example>
+    <title>名前空間内のコードでの __NAMESPACE__ の例</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace MyProject;
+
+echo '"', __NAMESPACE__, '"'; // "MyProject" と出力します
+?>
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>グローバルなコードでの __NAMESPACE__ の例</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+
+echo '"', __NAMESPACE__, '"'; // "" と出力します
+?>
+]]>
+    </programlisting>
+   </example>
+   <constant>__NAMESPACE__</constant> 定数は、動的に名前を作成する場合に便利です。
+   たとえば次のようになります。
+   <example>
+    <title>__NAMESPACE__ による動的な名前の作成</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace MyProject;
+
+function get($classname)
+{
+    $a = __NAMESPACE__ . '\\' . $classname;
+    return new $a;
+}
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   <literal>namespace</literal> キーワードを使用すると、
+   現在の名前空間あるいはサブ名前空間内の要素を明示的に指定することができます。
+   これは、クラスにおける <literal>self</literal>
+   演算子と同じ意味合いのものです。
+   <example>
+    <title>名前空間内での namespace 演算子</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace MyProject;
+
+use blah\blah as mine; // "名前空間の使用法: エイリアス/インポート" を参照ください
+
+blah\mine(); // MyProject\blah\mine() 関数をコールします
+namespace\blah\mine(); // MyProject\blah\mine() 関数をコールします
+
+namespace\func(); // MyProject\func() 関数をコールします
+namespace\sub\func(); // MyProject\sub\func() 関数をコールします
+namespace\cname::method(); // MyProject\cname クラスの静的メソッド "method" をコールします
+$a = new namespace\sub\cname(); // MyProject\sub\cname クラスのオブジェクトのインスタンスを作成します
+$b = namespace\CONSTANT; // 定数 MyProject\CONSTANT の値を $b に代入します
+?>
+]]>
+    </programlisting>
+   </example>
+   <example>
+    <title>グローバルコードでの namespace 演算子</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+
+namespace\func(); // func() 関数をコールします
+namespace\sub\func(); // sub\func() 関数をコールします
+namespace\cname::method(); // cname クラスの静的メソッド "method" をコールします
+$a = new namespace\sub\cname(); // sub\cname クラスのオブジェクトのインスタンスを作成します
+$b = namespace\CONSTANT; // 定数 CONSTANT の値を $b に代入します
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </sect1>
+ <sect1 xml:id="language.namespaces.importing">
+  <title>名前空間の使用法: エイリアス/インポート</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   外部の完全修飾名をエイリアスで参照したりインポートしたりする機能は、
+   名前空間において非常に重要なものです。
+   これは、Unix 系のファイルシステムでファイルやディレクトリへのシンボリックリンクを作成することに似ています。
+  </para>
+  <para>
+   PHP の名前空間では、3 通りの方法でエイリアスやインポートをサポートしています。
+   クラス名のエイリアスを作成する方法、インターフェイス名のエイリアスを作成する方法、
+   そして名前空間名のエイリアスを作成する方法です。
+   PHP 5.6 以降では、さらに関数や定数のエイリアスやインポートもサポートします。
+  </para>
+  <para>
+   PHP でのエイリアス作成には <literal>use</literal> 演算子を使用します。
+   ここに、5 種類すべてのインポート方法の例を示します。
+   <example>
+    <title>use 演算子によるインポート/エイリアス</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace foo;
+use My\Full\Classname as Another;
+
+// これは use My\Full\NSname as NSname と同じです
+use My\Full\NSname;
+
+// グローバルクラスをインポートします
+use ArrayObject;
+
+// 関数をインポートします (PHP 5.6+)
+use function My\Full\functionName;
+
+// 関数のエイリアスを定義します (PHP 5.6+)
+use function My\Full\functionName as func;
+
+// 定数をインポートします (PHP 5.6+)
+use const My\Full\CONSTANT;
+
+$obj = new namespace\Another; // foo\Another クラスのオブジェクトのインスタンスを作成します
+$obj = new Another; // My\Full\Classname クラスのオブジェクトのインスタンスを作成します
+NSname\subns\func(); // My\Full\NSname\subns\func 関数をコールします
+$a = new ArrayObject(array(1)); // ArrayObject クラスのオブジェクトのインスタンスを作成します
+// "use ArrayObject" がなければ、foo\ArrayObject クラスのオブジェクトのインスタンスを作成することになります
+func(); // 関数 My\Full\functionName を呼びます
+echo CONSTANT; // 定数 My\Full\CONSTANT の値を表示します
+?>
+]]>
+    </programlisting>
+   </example>
+   名前空間つきの名前 (完全修飾形式の名前空間は区切り文字を含んだ
+   <literal>Foo\Bar</literal> のようなもので、グローバルな場合は区切り文字を含まない
+   <literal>FooBar</literal> のようになります)
+   では先頭のバックスラッシュは不要で、推奨されないことに注意しましょう。
+   インポートする名前は完全修飾形式でなければならず、
+   現在の名前空間からの相対指定で処理されることはないからです。
+  </para>
+  <para>
+   PHP では、複数の use 文を同一行に置くための便利なショートカットもサポートしています。
+   <example>
+    <title>use 演算子によるインポート/エイリアスで、複数の use 文を組み合わせる例</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+use My\Full\Classname as Another, My\Full\NSname;
+
+$obj = new Another; // My\Full\Classname クラスのオブジェクトのインスタンスを作成します
+NSname\subns\func(); // My\Full\NSname\subns\func 関数をコールします
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   インポートはコンパイル時に行われるので、動的なクラス名、関数名や定数名には影響を及ぼしません。
+   <example>
+    <title>インポートと動的名</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+use My\Full\Classname as Another, My\Full\NSname;
+
+$obj = new Another; // My\Full\Classname クラスのオブジェクトのインスタンスを作成します
+$a = 'Another';
+$obj = new $a;      // Another クラスのオブジェクトのインスタンスを作成します
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   さらにインポートの影響が及ぶのは非修飾名および修飾名のみです。
+   完全修飾名は絶対的なものであり、インポートの影響を受けることはありません。
+   <example>
+    <title>インポートと完全修飾名</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+use My\Full\Classname as Another, My\Full\NSname;
+
+$obj = new Another; // My\Full\Classname クラスのオブジェクトのインスタンスを作成します
+$obj = new \Another; // Another クラスのオブジェクトのインスタンスを作成します
+$obj = new Another\thing; // My\Full\Classname\thing クラスのオブジェクトのインスタンスを作成します
+$obj = new \Another\thing; // Another\thing クラスのオブジェクトのインスタンスを作成します
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <sect2 xml:id="language.namespaces.importing.scope">
+   <title>インポート時のスコープ規則</title>
+   <para>
+    <literal>use</literal> キーワードの宣言は、ファイル内の一番外側のスコープ (グローバルスコープ)
+    あるいは名前空間宣言の中で行わなければなりません。
+    これは、インポートが実行時ではなくコンパイル時に行われるためです。
+    ブロック内のスコープではインポートできません。
+    次の例は、<literal>use</literal> キーワードの間違った使い方を示すものです。
+   </para>
+   <para>
+    <example>
+     <title>間違ったインポートの例</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+namespace Languages;
+
+class Greenlandic
+{
+    use Languages\Danish;
+
+    ...
+}
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <note>
+    <para>
+     インポート規則はファイル単位のものです。つまり、インクルードされたファイルは
+     インクロード元の親ファイルのインポート規則を <emphasis>引き継ぎません</emphasis>。
+    </para>
+   </note>
+  </sect2>
+ </sect1>
+ <sect1 xml:id="language.namespaces.global">
+  <title>グローバル空間</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   名前空間の定義がない場合、すべてのクラスや関数の定義はグローバル空間に配置されます。
+   これは、名前空間に対応する前の PHP がサポートしていた空間です。
+   名前の先頭に <literal>\</literal> をつけると、
+   名前空間の内部からであってもグローバル空間の名前を指定することができます。
+   <example>
+    <title>グローバル空間を指定する方法</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace A\B\C;
+
+/* この関数は A\B\C\fopen です */
+function fopen() { 
+     /* ... */
+     $f = \fopen(...); // グローバルな fopen をコールします
+     return $f;
+} 
+?>
+    ]]>
+    </programlisting>
+   </example>
+  </para>
+ </sect1>
+ <sect1 xml:id="language.namespaces.fallback">
+  <title>名前空間の使用法: グローバル関数/定数への移行</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   名前空間内で、PHP が未定義のクラス名や関数、定数に出会った場合、
+   それぞれに応じて異なる優先順位で解決を行います。
+   クラス名は、常に現在の名前空間での名前として解釈されます。
+   したがって、内部クラスあるいは名前空間に属さないクラスにアクセスするには
+   次のように完全修飾名で指定しなければなりません。
+   <example>
+    <title>名前空間内からのグローバルクラスへのアクセス</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace A\B\C;
+class Exception extends \Exception {}
+
+$a = new Exception('hi'); // $a は A\B\C\Exception クラスのオブジェクトです
+$b = new \Exception('hi'); // $b は Exception クラスのオブジェクトです
+
+$c = new ArrayObject; // fatal error, class A\B\C\ArrayObject not found
+?>
+    ]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   関数や定数の場合、名前空間内にその関数や定数が見つからなければ
+   PHP はグローバル関数/定数を探します。
+   <example>
+    <title>名前空間内からのグローバル関数/定数への移行</title>
+    <programlisting role="php">
+     <![CDATA[
+<?php
+namespace A\B\C;
+
+const E_ERROR = 45;
+function strlen($str)
+{
+    return \strlen($str) - 1;
+}
+
+echo E_ERROR, "\n"; // "45" と表示します
+echo INI_ALL, "\n"; // "7" と表示します - グローバルの INI_ALL に移行しました
+
+echo strlen('hi'), "\n"; // "1" と表示します
+if (is_array('hi')) { // "is not array" と表示します
+    echo "is array\n";
+} else {
+    echo "is not array\n";
+}
+?>
+    ]]>
+    </programlisting>
+   </example>
+  </para>
+ </sect1>
+
+ <sect1 xml:id="language.namespaces.rules">
+  <title>名前解決のルール</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   名前解決のルールを説明するにあたって、いくつかの重要な定義を示しておきます。
+   <variablelist>
+    <title>名前空間名の定義</title>
+    <varlistentry>
+     <term>非修飾名</term>
+     <listitem>
+      <para>
+       これは名前空間区切り文字を含まない識別子で、<literal>Foo</literal> のようなものです。
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>修飾名</term>
+     <listitem>
+      <para>
+       これは名前空間区切り文字を含む識別子で、<literal>Foo\Bar</literal> のようなものです。
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term>完全修飾名</term>
+     <listitem>
+      <para>
+       これは名前空間区切り文字を含む識別子のうち先頭が名前空間区切り文字で始まるもので、
+       <literal>\Foo\Bar</literal> のようなものです。名前空間 <literal>\Foo</literal>
+       も完全修飾名です。
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+  <para>
+   名前解決は、これらの解決ルールによって行われます。
+   <orderedlist>
+    <listitem>
+     <simpara>
+      完全修飾された関数、クラス、定数へのコールはコンパイル時に解決されます。
+      たとえば、<literal>new \A\B</literal> は <literal>A\B</literal> クラスと解釈されます。
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      非修飾名および (完全修飾でない) 修飾名の変換は、現在のインポートルールに基づいてコンパイル時に行われます。
+      たとえば、名前空間 <literal>A\B\C</literal> が
+      <literal>C</literal> という名前でインポートされている場合、
+      <literal>C\D\e()</literal> へのコールは <literal>A\B\C\D\e()</literal>
+      と変換されます。
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      名前空間内で、インポートルールによる変換が行われなかった修飾名は
+      現在の名前空間が先頭に付加されます。たとえば、
+      <literal>C\D\e()</literal> へのコールが名前空間 <literal>A\B</literal>
+      内で行われた場合、それは <literal>A\B\C\D\e()</literal> に変換されます。
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      非修飾クラス名の変換は、現在のインポートルールに基づいてコンパイル時に行われます
+      (インポートされた短い名前がフルネームに置き換わります)。たとえば、
+      名前空間 <literal>A\B\C</literal> が C という名前でインポートされている場合、
+      <literal>new C()</literal> は <literal>new A\B\C()</literal> と変換されます。
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      名前空間内 (ここでは A\B としましょう) で、非修飾な関数へのコールは実行時に解決されます。
+      関数 <literal>foo()</literal> のコールは、次のように解決されます。
+     </simpara>
+      <orderedlist>
+       <listitem>
+        <simpara>
+         まず現在の名前空間から関数
+         <literal>A\B\foo()</literal> を探します。
+        </simpara>
+       </listitem>
+       <listitem>
+        <simpara>
+         次に <emphasis>グローバル</emphasis> 関数
+         <literal>foo()</literal> を探します。
+        </simpara>
+       </listitem>
+      </orderedlist>
+    </listitem>
+    <listitem>
+     <simpara>
+      名前空間内 (ここでは <literal>A\B</literal> としましょう) で、
+      非修飾あるいは (完全修飾でない) 修飾なクラスへのコールは実行時に解決されます。
+      <literal>new C()</literal> や <literal>new D\E()</literal>
+      がどのように解決されるかを示します。
+      <literal> new C()</literal> の場合は、
+     </simpara>
+     <orderedlist>
+      <listitem>
+       <simpara>
+        まず現在の名前空間からクラス
+        <literal>A\B\C</literal> を探します。
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        <literal>A\B\C</literal> を autoload します。
+       </simpara>
+      </listitem>
+     </orderedlist>
+     <simpara>
+      <literal> new D\E()</literal> の場合は、
+     </simpara>
+     <orderedlist>
+      <listitem>
+       <simpara>
+        現在の名前空間を先頭につけた
+        <literal>A\B\D\E</literal> を探します。
+       </simpara>
+      </listitem>
+      <listitem>
+       <simpara>
+        <literal>A\B\D\E</literal> を autoload します。
+       </simpara>
+      </listitem>
+     </orderedlist>
+     <simpara>
+      グローバル名前空間内のグローバルクラスを参照するには、完全修飾形式の
+      <literal>new \C()</literal> を使わなければなりません。
+     </simpara>
+    </listitem>
+   </orderedlist>
+  </para>
+  <example>
+   <title>名前解決の例</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+namespace A;
+use B\D, C\E as F;
+
+// 関数のコール
+
+foo();      // まず名前空間 "A" で定義されている "foo" のコールを試み、
+            // 次にグローバル関数 "foo" をコールします
+
+\foo();     // グローバルスコープで定義されている関数 "foo" をコールします
+
+my\foo();   // 名前空間 "A\my" で定義されている関数 "foo" をコールします
+
+F();        // まず名前空間 "A" で定義されている "F" のコールを試み、
+            // 次にグローバル関数 "F" をコールします
+
+// クラスの参照
+
+new B();    // 名前空間 "A" で定義されているクラス "B" のオブジェクトを作成します
+            // 見つからない場合は、クラス "A\B" の autoload を試みます
+
+new D();    // インポートルールを使用し、名前空間 "B" で定義されているクラス "D" のオブジェクトを作成します
+            // 見つからない場合は、クラス "B\D" の autoload を試みます
+
+new F();    // インポートルールを使用し、名前空間 "C" で定義されているクラス "E" のオブジェクトを作成します
+            // 見つからない場合は、クラス "C\E" の autoload を試みます
+
+new \B();   // グローバルスコープで定義されているクラス "B" のオブジェクトを作成します
+            // 見つからない場合は、クラス "B" の autoload を試みます
+
+new \D();   // グローバルスコープで定義されているクラス "D" のオブジェクトを作成します
+            // 見つからない場合は、クラス "D" の autoload を試みます
+
+new \F();   // グローバルスコープで定義されているクラス "F" のオブジェクトを作成します
+            // 見つからない場合は、クラス "F" の autoload を試みます
+
+// 別の名前空間から使用する静的メソッド/関数
+
+B\foo();    // 名前空間 "A\B" の関数 "foo" をコールします
+
+B::foo();   // 名前空間 "A" で定義されているクラス "B" のメソッド "foo" をコールします
+            // クラス "A\B" が見つからない場合はクラス "A\B" の autoload を試みます
+
+D::foo();   // インポートルールを使用し、名前空間 "B" で定義されているクラス "D" のメソッド "foo" をコールします
+            // クラス "B\D" が見つからない場合はクラス "B\D" の autoload を試みます
+
+\B\foo();   // 名前空間 "B" の関数 "foo" をコールします
+
+\B::foo();  // グローバルスコープのクラス "B" のメソッド "foo" をコールします
+            // クラス "B" が見つからない場合はクラス "B" の autoload を試みます
+
+// 現在の名前空間から使用する静的メソッド/関数
+
+A\B::foo();   // 名前空間 "A\A" のクラス "B" のメソッド "foo" をコールします
+              // クラス "A\A\B" が見つからない場合はクラス "A\A\B" の autoload を試みます
+
+\A\B::foo();  // 名前空間 "A" のクラス "B" のメソッド "foo" をコールします
+              // クラス "A\B" が見つからない場合はクラス "A\B" の autoload を試みます
+?>
+]]>
+   </programlisting>
+  </example>
+ </sect1>
+ <sect1 xml:id="language.namespaces.faq">
+  <title>FAQ: 名前空間について知っておくべきこと</title>
+  <?phpdoc print-version-for="namespaces"?>
+  <para>
+   この FAQ は 2 つに別れています。一般的な質問と、
+   深く理解するために有用な実装に関する質問です。
+  </para>
+  <para>
+   まずは一般的な質問。
+   <orderedlist>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.shouldicare">名前空間を使わない場合、
+      何か注意すべきことはありますか?</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.globalclass">
+      名前空間内での内部クラスあるいはグローバルクラスの使用法は?</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.innamespace">
+      同じ名前空間にあるクラス、関数あるいは定数を使用する方法は?</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.full">
+       <literal>\my\name</literal> や <literal>\name</literal>
+       のような名前はどのように解決される?
+      </link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.qualified">
+      <literal>my\name</literal> のような名前はどのように解決される?</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.shortname1">
+      修飾されていない <literal>name</literal> のようなクラス名はどのように解決される?</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.shortname2">
+      修飾されていない <literal>name</literal> のような関数名/定数名はどのように解決される?</link>
+     </simpara>
+    </listitem>
+   </orderedlist>
+  </para>
+  <para>
+   また、名前空間の実装を理解するために有用な実装の詳細は次のとおりです。
+   <orderedlist>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.conflict">
+      インポートした名前が同一ファイルで定義されているクラスと衝突しない</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.nested">名前空間のネストはできない
+      </link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.nofuncconstantuse">
+      関数や定数は <literal>use</literal> 文でインポートできない</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.quote">
+      動的な名前空間名 (クォートした名前) ではバックスラッシュのエスケープが必要</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.constants">
+      バックスラッシュを含む未定義な定数を参照すると、致命的なエラーが発生する</link>
+     </simpara>
+    </listitem>
+    <listitem>
+     <simpara>
+      <link linkend="language.namespaces.faq.builtinconst">
+      特別な定数 NULL, TRUE, FALSE, ZEND_THREAD_SAFE そして ZEND_DEBUG_BUILD は上書きできない</link>
+     </simpara>
+    </listitem>
+   </orderedlist>
+  </para>
+  <sect2 xml:id="language.namespaces.faq.shouldicare">
+   <title>名前空間を使わない場合、何か注意すべきことはありますか?</title>
+   <para>
+    いいえ。これまで書いてきたコード、今後書く名前空間を含まないコードのいずれについても、
+    名前空間が何らかの影響を及ぼすことはありません。
+    お望みなら名前空間を使わないコードを書くこともできます。
+   </para>
+   <para>
+    <example>
+     <title>名前空間の外部にあるグローバルクラスへのアクセス</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$a = new \stdClass;
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    これは、機能的に次と同等です。
+   </para>
+   <para>
+    <example>
+     <title>名前空間の外部にあるグローバルクラスへのアクセス</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$a = new stdClass;
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.globalclass">
+   <title>名前空間内での内部クラスあるいはグローバルクラスの使用法は?</title>
+   <para>
+    <example>
+     <title>名前空間内からの内部クラスへのアクセス</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+namespace foo;
+$a = new \stdClass;
+
+function test(\ArrayObject $typehintexample = null) {}
+
+$a = \DirectoryIterator::CURRENT_AS_FILEINFO;
+
+// 内部クラス/グローバルクラスの継承
+class MyException extends \Exception {}
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.innamespace">
+   <title>
+    同じ名前空間にあるクラス、関数あるいは定数を使用する方法は?
+   </title>
+   <para>
+    <example>
+     <title>名前空間内のクラス、関数あるいは定数へのアクセス</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+namespace foo;
+
+class MyClass {}
+
+// 現在の名前空間のクラスをタイプヒントに使用する方法
+function test(MyClass $typehintexample = null) {}
+// 現在の名前空間のクラスをタイプヒントに使用するもうひとつの方法
+function test(\foo\MyClass $typehintexample = null) {}
+
+// 現在の名前空間のクラスの継承
+class Extended extends MyClass {}
+
+// グローバル関数へのアクセス
+$a = \globalfunc();
+
+// グローバル定数へのアクセス
+$b = \INI_ALL;
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.full">
+   <title>
+     <literal>\my\name</literal> や <literal>\name</literal>
+     のような名前はどのように解決される?
+   </title>
+   <para>
+    <literal>\</literal> から始まる名前は常に見た目のままに解釈されます。
+    つまり <literal>\my\name</literal> は <literal>my\name</literal> であり、
+    <literal>\Exception</literal> は <literal>Exception</literal> となります。
+    <example>
+     <title>完全修飾名</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+namespace foo;
+$a = new \my\name(); // "my\name" クラスのインスタンスを作成します
+echo \strlen('hi'); // "strlen" 関数をコールします
+$a = \INI_ALL; // $a に定数 "INI_ALL" の値を設定します
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.qualified">
+   <title><literal>my\name</literal> のような名前はどのように解決される?</title>
+   <para>
+    名前にバックスラッシュを含むが先頭はバックスラッシュでない名前、たとえば
+    <literal>my\name</literal> のような名前は 2 通りの方法で解釈されます。
+   </para>
+   <para>
+    別の名前に <literal>my</literal> というエイリアスを指定する import
+    文がある場合は、そのエイリアスが <literal>my\name</literal>
+    の <literal>my</literal> 部分に適用されます。
+   </para>
+   <para>
+    それ以外の場合は、現在の名前空間が <literal>my\name</literal> の先頭に付け加えられます。
+   </para>
+   <para>
+    <example>
+     <title>修飾名</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+namespace foo;
+use blah\blah as foo;
+
+$a = new my\name(); // "foo\my\name" クラスのインスタンスを作成します
+foo\bar::name(); // "blah\blah\bar" の静的メソッド "name" をコールします
+my\bar(); // "foo\my\bar" 関数をコールします
+$a = my\BAR; // $a に定数 "foo\my\BAR" の値を設定します
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.shortname1">
+   <title>修飾されていない <literal>name</literal> のようなクラス名はどのように解決される?</title>
+   <para>
+    バックスラッシュを含まない <literal>name</literal> のようなクラス名は
+    2 通りの方法で解釈されます。
+   </para>
+   <para>
+    別の名前に <literal>name</literal> というエイリアスを指定する import
+    文がある場合は、そのエイリアスが適用されます。
+   </para>
+   <para>
+    それ以外の場合は、現在の名前空間が <literal>name</literal> の先頭に付け加えられます。
+   </para>
+   <para>
+    <example>
+     <title>非修飾クラス名</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+namespace foo;
+use blah\blah as foo;
+
+$a = new name(); // "foo\name" クラスのインスタンスを作成します
+foo::name(); // "blah\blah" クラスの静的メソッド "name" をコールします
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.shortname2">
+   <title>
+    修飾されていない <literal>name</literal> のような関数名/定数名はどのように解決される?
+   </title>
+   <para>
+    バックスラッシュを含まない <literal>name</literal> のような関数名/定数名は
+    2 通りの方法で解釈されます。
+   </para>
+   <para>
+    まず、現在の名前空間が <literal>name</literal> の先頭に付け加えられます。
+   </para>
+   <para>
+    現在の名前空間に <literal>name</literal> という関数あるいは定数がない場合は、
+    グローバル関数あるいは定数に <literal>name</literal>
+    があればそれを使用します。
+   </para>
+   <para>
+    <example>
+     <title>非修飾関数/定数名</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+namespace foo;
+use blah\blah as foo;
+
+const FOO = 1;
+
+function my() {}
+function foo() {}
+function sort(&$a)
+{
+    \sort($a); // グローバル関数 "sort" をコールします
+    $a = array_flip($a);
+    return $a;
+}
+
+my(); // "foo\my" をコールします
+$a = strlen('hi'); // "foo\strlen" が存在しないので、グローバル関数 "strlen" をコールします
+$arr = array(1,3,2);
+$b = sort($arr); // "foo\sort" 関数をコールします
+$c = foo(); // calls function "foo\foo" - import is not applied
+
+$a = FOO; // sets $a to value of constant "foo\FOO" - import is not applied
+$b = INI_ALL; // sets $b to value of global constant "INI_ALL"
+?>
+]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.conflict">
+   <title>インポートした名前が同一ファイルで定義されているクラスと衝突しない</title>
+   <para>
+    次のようなスクリプトの組み合わせは、正当なものです。
+    <informalexample>
+     <simpara>file1.php</simpara>
+     <programlisting role="php">
+     <![CDATA[
+<?php
+namespace my\stuff;
+class MyClass {}
+?>
+     ]]>
+     </programlisting>
+     <simpara>another.php</simpara>
+     <programlisting role="php">
+     <![CDATA[
+<?php
+namespace another;
+class thing {}
+?>
+     ]]>
+     </programlisting>
+     <simpara>file2.php</simpara>
+     <programlisting role="php">
+     <![CDATA[
+<?php
+namespace my\stuff;
+include 'file1.php';
+include 'another.php';
+
+use another\thing as MyClass;
+$a = new MyClass; // 名前空間 another のクラス "thing" のインスタンスを作成します。
+?>
+     ]]>
+     </programlisting>
+    </informalexample>
+   </para>
+   <para>
+    <literal>MyClass</literal> クラスが名前空間
+    <literal>my\stuff</literal> にあるとはいえ、名前の衝突はありません。
+    MyClass の定義は別のファイルにあるからです。
+    しかし、次の例は名前の衝突による致命的なエラーとなります。
+    MyClass の定義が同じファイル上の use 文で行われているからです。
+    <informalexample>
+     <programlisting role="php">
+     <![CDATA[
+<?php
+namespace my\stuff;
+use another\thing as MyClass;
+class MyClass {} // fatal error: MyClass conflicts with import statement
+$a = new MyClass;
+?>
+     ]]>
+     </programlisting>
+    </informalexample>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.nested">
+   <title>名前空間のネストはできない</title>
+   <para>
+    PHP では名前空間のネストはできません。
+    <informalexample>
+     <programlisting role="php">
+     <![CDATA[
+<?php
+namespace my\stuff {
+    namespace nested {
+        class foo {}
+    }
+}
+?>
+     ]]>
+     </programlisting>
+    </informalexample>
+    しかし、それっぽいことをするのは簡単です。次のようにすればいいのです。
+    <informalexample>
+     <programlisting role="php">
+     <![CDATA[
+<?php
+namespace my\stuff\nested {
+    class foo {}
+}
+?>
+     ]]>
+     </programlisting>
+    </informalexample>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.nofuncconstantuse">
+   <title>関数や定数は <literal>use</literal> 文でインポートできない</title>
+   <para>
+    <literal>use</literal> 文の影響を受けるのは名前空間とクラス名のみです。
+    長い名前の定数や関数を短い名前にするには、それらが含まれる名前空間をインポートします。
+    <informalexample>
+     <programlisting role="php">
+     <![CDATA[
+<?php
+namespace mine;
+use ultra\long\ns\name;
+
+$a = name\CONSTANT;
+name\func();
+?>
+     ]]>
+     </programlisting>
+    </informalexample>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.quote">
+   <title>動的な名前空間名 (クォートした名前) ではバックスラッシュのエスケープが必要</title>
+   <para>
+    バックスラッシュは文字列のエスケープ文字として使われることに注意しましょう。
+    文字列の中で使う際にはバックスラッシュを二重に書く必要があります。
+    そうしないと、予期せぬ結果を引き起こしてしまいます。
+    <example>
+     <title>ダブルクォートで囲んだ文字列内で名前空間名を扱う際の危険</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+$a = "dangerous\name"; // ダブルクォートの中では \n が改行文字になってしまいます!
+$obj = new $a;
+
+$a = 'not\at\all\dangerous'; // これなら大丈夫です
+$obj = new $a;
+?>
+      ]]>
+     </programlisting>
+    </example>
+    シングルクォートで囲んだ文字列内では、
+    バックスラッシュによるエスケープシーケンスをより安全に使うことができます。
+    しかし、文字列内では常にバックスラッシュをエスケープする習慣をつけておくことをお勧めします。
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.constants">
+   <title>バックスラッシュを含む未定義な定数を参照すると、致命的なエラーが発生する</title>
+   <para>
+    未定義の定数のうち <literal>FOO</literal> のような修飾されていないものは、
+    PHP が <literal>FOO</literal> を定数の値と解釈したという notice が発生します。
+    修飾あるいは完全修飾形式の定数、つまりバックスラッシュを含む定数の場合、
+    それが未定義なら致命的なエラーが発生します。
+    <example>
+     <title>未定義の定数</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+namespace bar;
+$a = FOO; // notice - undefined constants "FOO" assumed "FOO";
+$a = \FOO; // fatal error, undefined namespace constant FOO
+$a = Bar\FOO; // fatal error, undefined namespace constant bar\Bar\FOO
+$a = \Bar\FOO; // fatal error, undefined namespace constant Bar\FOO
+?>
+      ]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+  <sect2 xml:id="language.namespaces.faq.builtinconst">
+   <title>特別な定数 NULL, TRUE, FALSE, ZEND_THREAD_SAFE そして ZEND_DEBUG_BUILD は上書きできない</title>
+   <para>
+    名前空間内で特別な組み込み定数を定義しようとすると、致命的なエラーが発生します。
+    <example>
+     <title>未定義の定数</title>
+     <programlisting role="php">
+      <![CDATA[
+<?php
+namespace bar;
+const NULL = 0; // 致命的なエラー
+const true = 'stupid'; // これも、致命的なエラー
+// etc.
+?>
+      ]]>
+     </programlisting>
+    </example>
+   </para>
+  </sect2>
+ </sect1>
+</chapter>
+
+<!-- Keep this comment at the end of the file
+ Local variables:
+ mode: sgml
+ sgml-omittag:t
+ sgml-shorttag:t
+ sgml-minimize-attributes:nil
+ sgml-always-quote-attributes:t
+ sgml-indent-step:1
+ sgml-indent-data:t
+ indent-tabs-mode:nil
+ sgml-parent-document:nil
+ sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+ sgml-exposed-tags:nil
+ sgml-local-catalogs:nil
+ sgml-local-ecat-files:nil
+ End:
+ vim600: syn=xml fen fdm=syntax fdl=2 si
+ vim: et tw=78 syn=sgml
+ vi: ts=1 sw=1
+-->

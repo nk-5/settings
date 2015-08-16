@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: 337302 Maintainer: hirokawa Status: ready -->
+<!-- CREDITS: takagi -->
+ <chapter xml:id="language.references" xmlns="http://docbook.org/ns/docbook">
+  <title>リファレンスの説明</title>
+
+  <sect1 xml:id="language.references.whatare">
+   <title>リファレンスとは?</title>
+   <simpara>
+    PHP において、リファレンスとは同じ変数の内容を異なった名前で
+    コールすることを意味します。これは C のポインタとは異なります。
+    リファレンスを使ってポインタの演算をすることはできませんし、
+    リファレンスは実メモリのアドレスでもありません。詳細は
+    <xref linkend="language.references.arent" /> を参照ください。
+    そうではなく、リファレンスはシンボルテーブルのエイリアスです。
+    PHP では、変数名と変数の内容は異なっており、
+    このため、同じ内容は異なった複数の名前を有する事が可能であることに
+    注意してください。最も良く似ているのは、Unix のファイル名とファイルの
+    関係です。この場合、変数名はディレクトリエントリ、変数の内容は
+    ファイル自体に対応します。リファレンスは、Unix ファイルシステムの
+    ハードリンクのようなものであると考えられます。
+   </simpara>
+  </sect1>
+
+  <sect1 xml:id="language.references.whatdo">
+   <title>リファレンスが行うことは何ですか?</title>
+   <para>
+    リファレンスを使う基本操作には三通りあります。
+    <link linkend="language.references.whatdo.assign">リファレンスの代入</link>、
+    <link linkend="language.references.whatdo.pass">リファレンス渡し</link>、
+    そして <link linkend="language.references.whatdo.return">リファレンスを返す</link>ことです。
+    この節では、これらの操作に関する基本的な解説をします。
+    そして、詳細な説明へのリンクを示します。
+   </para>
+   <sect2 xml:id="language.references.whatdo.assign">
+    <title>リファレンスの代入</title>
+    <para>
+     まず最初の操作です。PHP のリファレンスを使うと、
+     ふたつの変数が同じ内容を指すようにできます。
+     次の例を考えてみましょう。
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$a =& $b;
+?>
+]]>
+      </programlisting>
+     </informalexample>
+     この場合、<varname>$a</varname> と <varname>$b</varname>
+     は同じ内容を指します。
+     <note>
+      <para>
+       ここで、<varname>$a</varname> と <varname>$b</varname> は完全に
+       同じで、<varname>$a</varname> が <varname>$b</varname> を
+       指しているわけではなく、その逆でもありません。<varname>$a</varname> と
+       <varname>$b</varname> は同じ場所を指しているのです。
+      </para>
+     </note>
+    </para>
+    <note>
+     <para>
+      未定義の変数のリファレンスに対して代入したり
+      渡したり返したりすると、そこで変数が作成されます。
+      <example>
+       <title>未定義の変数のリファレンスの使用</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+function foo(&$var) { }
+
+foo($a); // $a が作成され、null が代入されます
+
+$b = array();
+foo($b['b']);
+var_dump(array_key_exists('b', $b)); // bool(true)
+
+$c = new StdClass;
+foo($c->d);
+var_dump(property_exists($c, 'd')); // bool(true)
+?>
+]]>
+       </programlisting>
+      </example>
+     </para>
+    </note>
+    <para>
+     リファレンスを返す関数や <literal>new</literal> 演算子でも
+     同じ構文が使用可能です (PHP 4.0.4 以降 PHP 5.0.0 未満まで)。
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$foo =& find_var($bar);
+?>
+]]>
+      </programlisting>
+     </informalexample>
+     PHP 5 以降、<link linkend="language.oop5.basic.new">new</link>
+     は自動的にリファレンスを返すようになりました。そのため、この場面で
+     <literal>=&amp;</literal> を使用することは非推奨となりました。
+     PHP 5.3 以降では <constant>E_DEPRECATED</constant>、それより前のバージョンでは
+     <constant>E_STRICT</constant> レベルのメッセージが表示されます。
+     また、PHP 7.0.0 以降は、文法的に無効となります
+     (技術的な話をすると、PHP 5 以降では、リソース型のようなオブジェクト変数は
+     実際のデータへの単なるポインタとなりました。つまり、
+     オブジェクトのリファレンスはこれまでのような意味での "リファレンス"
+     つまりエイリアスとは異なります。
+     詳細な情報は <link linkend="language.oop5.references">
+     オブジェクトと参照</link> にあります)。
+    </para>
+    <warning>
+     <para>
+      関数の内部で <literal>global</literal> 宣言された変数にリファレンスを
+      代入すると、そのリファレンスは関数の内部でのみ参照可能となります。
+      これを避けるには、<varname>$GLOBALS</varname> 配列を使用します。
+      <example>
+       <title>関数内でのグローバル変数の参照</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+$var1 = "Example variable";
+$var2 = "";
+
+function global_references($use_globals)
+{
+    global $var1, $var2;
+    if (!$use_globals) {
+        $var2 =& $var1; // 関数の内部でのみ参照可能
+    } else {
+        $GLOBALS["var2"] =& $var1; // 関数の外部でも参照可能
+    }
+}
+
+global_references(false);
+echo "var2 の値は '$var2'\n"; // var2 の値は ''
+global_references(true);
+echo "var2 の値は '$var2'\n"; // var2 の値は 'Example variable'
+?>
+]]>
+       </programlisting>
+      </example>
+      <literal>global $var;</literal> は、<literal>$var
+      =&amp; $GLOBALS['var'];</literal> の短縮版だと考えてください。
+      これにより、他のリファレンスを <literal>$var</literal> に代入し、
+      ローカル変数のリファレンスのみを変更します。
+     </para>
+    </warning>
+    <note>
+     <para>
+      &foreach; ステートメントの内部でリファレンス変数に値を代入すると、リファレンスも変更されます。
+      <example>
+       <title>リファレンスと foreach ステートメント</title>
+       <programlisting role="php">
+<![CDATA[
+<?php
+$ref = 0;
+$row =& $ref;
+foreach (array(1, 2, 3) as $row) {
+    // 何かを実行します
+}
+echo $ref; // 3 - 配列の最後の要素
+?>
+]]>
+       </programlisting>
+      </example>
+     </para>
+    </note>
+    <para>
+     厳密にリファレンスでの代入をしなくても、
+     <link linkend="function.array"><literal>array()</literal></link>
+     で作成した式は、配列の要素の先頭に <literal>&amp;</literal>
+     を追加したのと同じような動作をします。たとえば、次のようになります。
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$a = 1;
+$b = array(2, 3);
+$arr = array(&$a, &$b[0], &$b[1]);
+$arr[0]++; $arr[1]++; $arr[2]++;
+/* $a == 2, $b == array(3, 4); */
+?>
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+    <para>
+     しかし、配列の内部のリファレンスは危険もあるということに気をつけましょう。
+     通常の (リファレンスではない) 代入の右辺にリファレンスを使っても
+     左辺はリファレンスには変わりませんが、配列の内部のリファレンスは通常の代入のままとなります。
+     これは、関数をコールする際に配列をリファレンスで渡すときも同じです。
+     たとえば、次のようになります。
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+/* スカラー変数への代入 */
+$a = 1;
+$b =& $a;
+$c = $b;
+$c = 7; // $c はリファレンスではないので $a や $b の値は変わりません
+
+/* 配列変数への代入 */
+$arr = array(1);
+$a =& $arr[0]; // $a および $arr[0] は同じリファレンスセットになります
+$arr2 = $arr; // これは、リファレンス代入ではありません!
+$arr2[0]++;
+/* $a == 2, $arr == array(2) */
+/* $arr の内容は、たとえリファレンスでなくても変わります! */
+?>
+]]>
+      </programlisting>
+     </informalexample>
+     言い換えると、配列内のリファレンスの挙動はその要素ごとに決まるということです。
+     個々の要素のリファレンスに関する動きは、
+     配列コンテナがリファレンスであるかどうかとは独立しています。
+    </para>
+   </sect2>
+   <sect2 xml:id="language.references.whatdo.pass">
+    <title>リファレンス渡し</title>
+    <para>
+     リファレンスの第 2 の使用法は、変数のリファレンス渡しです。この場合、
+     関数でローカル変数が作成され、コール側の変数が、それと同じ内容への
+     リファレンスとなります。例を示します。
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+function foo(&$var) 
+{
+  $var++;
+}
+
+$a=5;
+foo($a);
+?>
+]]>
+      </programlisting>
+     </informalexample>
+     この結果、<varname>$a</varname> は 6 となります。これは、関数
+     <varname>foo</varname> の中では、変数 <varname>$var</varname> は
+     <varname>$a</varname> と同じ内容を指しているためです。
+     より詳細な説明は、
+     <link linkend="language.references.pass">リファレンス渡し</link>
+     を参照ください。
+    </para>
+   </sect2>
+   <sect2 xml:id="language.references.whatdo.return">
+    <title>リファレンスによる返り値</title>
+    <para>
+     リファレンスの第 3 の使用法は、
+     <link linkend="language.references.return">リファレンスによる返り値
+     </link>です。
+    </para>
+   </sect2>
+  </sect1>
+  
+  <sect1 xml:id="language.references.arent">
+   <title>リファレンスが行わないこと</title>
+   <para>
+    これまでに説明したように、リファレンスはポインタではありません。このため、
+    次の例は期待通りに動作しません。
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(&$var)
+{
+    $var =& $GLOBALS["baz"];
+}
+foo($bar); 
+?>
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+   <simpara>
+    ここでの動作としては、関数 <varname>foo</varname> の
+    <varname>$var</varname> はコール側の <varname>$bar</varname>
+    と関連付けられますが、<varname>$GLOBALS["baz"]</varname>
+    に再結合されるといったものになります。<varname>$bar</varname>
+    は関数 <varname>foo</varname> で利用できないため、
+    リファレンス以外にはコール側の変数スコープにある
+    <varname>$bar</varname> を何かに結合する手段はありません
+    （この変数は <varname>$var</varname> として表されていますが、
+    <varname>$var</varname> はその変数の内容のみを有しており、
+    コール側のシンボルテーブルで名前と変数を結合したものではありません）。
+    関数内で指定した変数を参照するには、<link 
+    linkend="language.references.return">リファレンス返し</link>
+    が使用可能です。
+   </simpara>
+  </sect1>
+  
+  <sect1 xml:id="language.references.pass">
+   <title>リファレンス渡し</title>
+   <para>
+    リファレンスにより関数に変数を渡すことが可能です。この場合、関数内で
+    その引数を修正可能になります。構文は次のようになります。
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(&$var)
+{
+    $var++;
+}
+
+$a=5;
+foo($a);
+// $a はここでは 6 です
+?>
+]]>
+     </programlisting>
+    </informalexample>
+    <note>
+     <simpara>
+      関数コールの際には、リファレンス記号がないことに注意してください。
+      関数定義にのみリファレンス記号があります。リファレンスで正しく引数を
+      渡すには、関数定義のみで十分です。以前のバージョンの PHP では
+      <literal>foo(&amp;$a);</literal> のような形式で &amp; を利用すると
+      "Call-time pass-by-reference" という警告が発生していましたが、
+      PHP 5.3.0 以降では警告は発生しません。
+      また、PHP 5.4.0 以降では call-time pass-by-reference 機能自体が削除されたので、
+      これを使おうとすると fatal エラーが発生します。
+     </simpara>
+    </note>
+  </para>
+  <para>
+    次のものはリファレンスで渡すことが可能です。
+    <itemizedlist>
+     <listitem>
+      <simpara>
+       変数、すなわち、<literal>foo($a)</literal>
+      </simpara>
+     </listitem>
+     <listitem>
+      <simpara>
+       new 命令、すなわち、<literal>foo(new foobar())</literal>
+      </simpara>
+     </listitem>
+     <listitem>
+      <para>
+       関数から返されるリファレンスは、次のようになります。
+       <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+function foo(&$var)
+{
+    $var++;
+}
+function &bar()
+{
+    $a = 5;
+    return $a;
+}
+foo(bar());
+?>
+]]>
+    </programlisting>
+       </informalexample>
+       <link linkend="language.references.return">リファレンスによる
+       返り値</link> に関する説明も参照ください。
+      </para>
+     </listitem>
+    </itemizedlist>
+   </para>
+   <para>
+    他の式は、結果が未定義となるため、リファレンスで渡すべきではありません。
+    例えば、リファレンスで渡す次の例は、無効です。
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function foo(&$var)
+{
+    $var++;
+}
+function bar() // & がないことに注意
+{
+    $a = 5;
+    return $a;
+}
+foo(bar()); // PHP 5.0.5 以降、致命的なエラーが発生する
+            // PHP 5.1.1 以降では strict notice、そして PHP 7.0.0 以降では notice となる
+
+foo($a = 5); // 式、変数ではない
+foo(5); // 致命的なエラーが発生する
+?>
+]]>
+     </programlisting>
+    </informalexample>
+    以上の説明は、PHP 4.0.4 以降用です。
+   </para>
+  </sect1>
+
+  <sect1 xml:id="language.references.return">
+   <title>リファレンスを返す</title>
+   <para>
+    リファレンスを返すことは、結合する変数を見付けるために関数を使用し
+    たい場合に便利です。パフォーマンスを向上させるためだけの目的で
+    この機能を用いることは<emphasis>やめてください</emphasis>。
+    そのようなことをしなくても、PHP エンジンが自動的に最適化を行います。
+    リファレンスを返すのは、そうすべき妥当な理由がある場合に限られます!
+    リファレンスを返す場合、次の構文を使用して下さい。
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+class foo {
+    public $value = 42;
+
+    public function &getValue() {
+        return $this->value;
+    }
+}
+
+$obj = new foo;
+$myValue = &$obj->getValue(); // $myValue は $obj->value へのリファレンス、つまり 42 となります
+$obj->value = 2;
+echo $myValue;                // $obj->value の新しい値である 2 を表示します
+?> 
+]]>
+     </programlisting>
+    </informalexample>
+    この例では、関数 <varname>getValue</varname> により返された
+    オブジェクトのプロパティが、設定されます。リファレンス構文を
+    使用しない場合のようにコピーとなるわけではありません。
+   </para>
+   <note>
+    <simpara>
+     パラメータを渡す場合と異なり、ここでは、通常のようにコピーでは
+     なくリファレンスで返り値を指定し、リファレンス結合を指定するために
+     両方の場所で <literal>&amp;</literal> を使用する必要があります。
+     <varname>$myValue</varname> について行われたのは、通常の代入ではありません。
+    </simpara>
+   </note>
+   <note>
+    <simpara>
+     以下のような形式で関数からリファレンスを返そうとした場合、
+     <literal>return ($this->value);</literal> これは、あなたが望んでいるように
+     <emphasis>式</emphasis> の結果を返してくれることは<emphasis>ありません</emphasis>。
+     可能なことは、値へのリファレンスを返すことができるということだけで、
+     それ以外の何者でもありません。
+     PHP 4.4.0 および PHP 5.1.0 以降では、式の結果や <literal>new</literal>
+     演算子の結果をそのまま返そうとした場合に <constant>E_NOTICE</constant>
+     エラーが発生します。
+    </simpara>
+   </note>
+   <para>
+   返されたリファレンスを使うには、リファレンスを代入しなければなりません。
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function &collector() {
+  static $collection = array();
+  return $collection;
+}
+$collection = &collector();
+$collection[] = 'foo';
+?> 
+]]>
+     </programlisting>
+    </informalexample>
+   返されたリファレンスを、リファレンスを要求する別の関数に渡すには、
+   この構文を使います。
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function &collector() {
+  static $collection = array();
+  return $collection;
+}
+array_push(collector(), 'foo');
+?> 
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+   <note>
+    <simpara>
+      <literal>array_push(&amp;collector(), 'foo');</literal> は
+      <emphasis>動かない</emphasis>ことに注意しましょう。fatal エラーとなります。
+    </simpara>
+   </note>
+  </sect1>
+  
+  <sect1 xml:id="language.references.unset">
+  <title>リファレンスの解除</title>
+   <para>
+    リファレンスを解除することは、ちょうど変数名と変数の内容の結合を
+    解除することに相当します。これは、変数の内容が破棄されることを
+    意味しません。例えば、
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+$a = 1;
+$b =& $a;
+unset($a);
+?>
+]]>
+     </programlisting>
+    </informalexample>
+    は、<varname>$b</varname> を削除せず、<varname>$a</varname> のみを
+    削除します。
+   </para>
+   <simpara>
+    ここでも、Unix の <command>unlink</command> コールと類似したものと
+    考えると便利です。
+   </simpara>
+  </sect1>
+  
+  <sect1 xml:id="language.references.spot">
+   <title>リファレンスの適用範囲</title>
+   
+   <simpara>
+    PHP の多くの構文構造は、リファレンス機構を利用して実装されています。
+    このため、前記のリファレンス結合に関する事項はこれらの構造についても
+    適用されます。リファレンス渡しおよびリファレンスの返り値のような
+    いくつかの構造について前節で記述されています。リファレンスを使用する
+    他の構造には次のものがあります。
+   </simpara>
+   
+   <sect2 xml:id="references.global">
+    <title>global リファレンス</title>
+
+    <para>
+     変数を <command>global $var</command> として宣言した場合、実際には
+     グローバル変数へのリファレンスを作成したことになります。この意味は、
+     次の例と同じです。
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+<?php
+$var =& $GLOBALS["var"];
+?>
+]]>
+      </programlisting>
+     </informalexample>
+    </para>
+    <simpara>
+     これは、例えば、<varname>$var</varname> を削除してもグローバル変数は
+     削除されないことを意味します。
+    </simpara>
+   </sect2>
+   
+   <sect2 xml:id="references.this">
+    <title><literal>$this</literal></title>
+    
+    <simpara>
+     オブジェクトのメソッドでは、<varname>$this</varname> は
+     常にコール側のオブジェクトへのリファレンスです。
+    </simpara>
+   </sect2>
+  </sect1>
+
+ </chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->

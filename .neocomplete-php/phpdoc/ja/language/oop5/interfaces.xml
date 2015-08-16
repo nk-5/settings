@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision: 334714 $ -->
+<!-- EN-Revision: 334698 Maintainer: hirokawa Status: ready -->
+<!-- CREDITS: shimooka,takagi -->
+
+<sect1 xml:id="language.oop5.interfaces" xmlns="http://docbook.org/ns/docbook">
+ <title>オブジェクト インターフェイス</title>
+ <para>
+  オブジェクトインターフェイスにより、あるクラスが実装する必要があるメソッドの
+  種類を、これらのメソッドの実体を定義することなく、指定するコードを作成できる
+  ようになります。
+ </para>
+ <para>
+  インターフェイスはキーワード <literal>interface</literal> により定義され、通常のクラスと
+  同様に定義することができますが、メソッドの実装は全く定義されません。
+ </para>
+ <para>
+  インターフェイス内で宣言される全てのメソッドはpublicである必要があります。
+  これは、インターフェイスの特性によります。
+ </para>
+  <sect2 xml:id="language.oop5.interfaces.implements">
+   <title><literal>implements</literal></title>
+   <para>
+    インターフェイスを実装するには、<literal>implements</literal>
+    演算子を使用し、
+    このインターフェイスに含まれる全てのメソッドを実装する必要があります。
+    実装されていない場合、致命的エラーとなります。
+    各インターフェイスをカンマで区切って指定することで、
+    クラスは複数のインターフェイスを実装することができます。
+   </para>
+   <note>
+    <para>
+     PHP 5.3.9 より前のバージョンでは、ひとつのクラスの中で同じ名前のメソッドを定義した2つのインターフェイスを実装することはできませんでした。曖昧さを解決できなくなるためです。
+     PHP 5.3.9 以後のバージョンでは、同じ名前のメソッドが同じシグナチャを持っている場合に限り、こうした実装を行えるようになっています。
+    </para>
+   </note>
+   <note>
+    <para>
+     クラスと同様、インターフェイスも
+     <link linkend="language.oop5.inheritance">extends</link>
+     演算子で継承することができます。
+    </para>
+   </note>
+   <note>
+    <para>
+     インターフェイスを実装したクラスには、
+     そのインターフェイスで定義されているメソッドとまったく同じシグネチャを持つメソッドが必要です。
+     そうしなければ致命的なエラーが発生します。
+     </para>
+    </note>
+  </sect2>
+  <sect2 xml:id="language.oop5.interfaces.constants">
+   <title><literal>定数</literal></title>
+   <para>
+    インターフェイスに定数を持たせることもできます。
+    インターフェイス定数は <link linkend="language.oop5.constants">クラス定数</link>
+    とまったく同じように動作します。しかし、
+    そのインターフェイスを継承したクラスやインターフェイスから上書きすることはできません。
+   </para>
+  </sect2>
+  <sect2 xml:id="language.oop5.interfaces.examples">
+   &reftitle.examples;
+   <example xml:id="language.oop5.interfaces.examples.ex1">
+    <title>Interface の例</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+
+// インターフェイス 'iTemplate' を宣言する
+interface iTemplate
+{
+    public function setVariable($name, $var);
+    public function getHtml($template);
+}
+
+// インターフェイスを実装する。
+// これは動作します。
+class Template implements iTemplate
+{
+    private $vars = array();
+
+    public function setVariable($name, $var)
+    {
+        $this->vars[$name] = $var;
+    }
+
+    public function getHtml($template)
+    {
+        foreach($this->vars as $name => $value) {
+            $template = str_replace('{' . $name . '}', $value, $template);
+        }
+
+        return $template;
+    }
+}
+
+// これは動作しません。
+// Fatal error: Class BadTemplate contains 1 abstract methods
+// and must therefore be declared abstract (iTemplate::getHtml)
+class BadTemplate implements iTemplate
+{
+    private $vars = array();
+
+    public function setVariable($name, $var)
+    {
+        $this->vars[$name] = $var;
+    }
+}
+?>
+]]>
+    </programlisting>
+   </example>
+   <example xml:id="language.oop5.interfaces.examples.ex2">
+    <title>インターフェイスの継承</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+interface a
+{
+    public function foo();
+}
+
+interface b extends a
+{
+    public function baz(Baz $baz);
+}
+
+// これは動作します
+class c implements b
+{
+    public function foo()
+    {
+    }
+
+    public function baz(Baz $baz)
+    {
+    }
+}
+
+// これは動作せず、fatal error となります
+class d implements b
+{
+    public function foo()
+    {
+    }
+
+    public function baz(Foo $foo)
+    {
+    }
+}
+?>
+]]>
+     </programlisting>
+   </example>
+   <example xml:id="language.oop5.interfaces.examples.ex3">
+    <title>複数のインターフェイスの継承</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+interface a
+{
+    public function foo();
+}
+
+interface b
+{
+    public function bar();
+}
+
+interface c extends a, b
+{
+    public function baz();
+}
+
+class d implements c
+{
+    public function foo()
+    {
+    }
+
+    public function bar()
+    {
+    }
+
+    public function baz()
+    {
+    }
+}
+?>
+]]>
+     </programlisting>
+   </example>
+   <example xml:id="language.oop5.interfaces.examples.ex4">
+    <title>インターフェイスでの定数</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+interface a
+{
+    const b = 'Interface constant';
+}
+
+// Interface constant と表示します
+echo a::b;
+
+
+// しかし、これは動作しません。定数のオーバーライドが
+// できないからです。
+class b implements a
+{
+    const b = 'Class constant';
+}
+?>
+]]>
+     </programlisting>
+   </example>
+   <para>
+     インターフェイスとタイプヒンティングを組み合わせると、
+     特定のオブジェクトに特定のメソッドをうまく持たせることができます。
+     <link linkend="language.operators.type">instanceof</link> 演算子および
+     <link linkend="language.oop5.typehinting">タイプヒンティング</link>
+     を参照ください。
+   </para>
+  </sect2>
+
+ </sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

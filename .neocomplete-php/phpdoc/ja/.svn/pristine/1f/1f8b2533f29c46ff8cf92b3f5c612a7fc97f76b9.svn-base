@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: 321337 Maintainer: takagi Status: ready -->
+<!-- CREDITS: hirokawa -->
+
+<sect1 xml:id="language.oop5.paamayim-nekudotayim" xmlns="http://docbook.org/ns/docbook">
+ <title>スコープ定義演算子 (::)</title>
+
+ <para>
+  スコープ定義演算子 (またの名を Paamayim Nekudotayim)、
+  平たく言うと「ダブルコロン」は、トークンのひとつです。
+  <link linkend="language.oop5.static">static</link>,
+  <link linkend="language.oop5.constants">定数</link>
+  およびオーバーライドされたクラスのプロパティやメソッドにアクセスすることができます。
+ </para>
+
+ <para>
+  これらの要素をクラス定義の外から参照する際には、
+  クラスの名前を使用してください。
+ </para>
+
+ <para>
+  PHP 5.3.0 以降では、変数を用いてクラスを参照することも可能です。
+  変数の値に (<literal>self</literal> や <literal>parent</literal>、
+  <literal>static</literal> といった)
+  キーワードを指定することはできません。
+ </para>
+
+ <para>
+  なぜダブルコロンに Paamayim Nekudotayim という名前をつけたのか、
+  ちょっと奇妙に感じられるかもしれません。
+  しかし、Zend Engine 0.5 (PHP 3のエンジン) を
+  書いている時に、Zend チームはこう呼ぶと決めたのです。
+  この奇妙な名前は、実はダブルコロンを意味するヘブライ語なのです!
+ </para>
+
+ <example>
+  <title>クラス定義の外からの ::</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+class MyClass {
+    const CONST_VALUE = 'A constant value';
+}
+
+$classname = 'MyClass';
+echo $classname::CONST_VALUE; // PHP 5.3.0 以降で対応
+
+echo MyClass::CONST_VALUE;
+?>
+]]>
+  </programlisting>
+ </example>
+
+ <para>
+  三つの特別なキーワード <varname>self</varname> と <varname>parent</varname>そして <varname>static</varname>
+  がクラス定義の内部からプロパティまたはメソッドにアクセスする際に使用されます。
+ </para>
+
+ <example>
+  <title>クラス定義の中からの ::</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+class OtherClass extends MyClass
+{
+    public static $my_static = 'static var';
+
+    public static function doubleColon() {
+        echo parent::CONST_VALUE . "\n";
+        echo self::$my_static . "\n";
+    }
+}
+
+$classname = 'OtherClass';
+echo $classname::doubleColon(); // PHP 5.3.0 以降で対応
+
+OtherClass::doubleColon();
+?>
+]]>
+  </programlisting>
+ </example>
+
+ <para>
+  拡張されたクラスが親クラスのメソッドの定義をオーバーライドする際、
+  PHPは親クラスのメソッドをコールしません。
+  親クラスのメソッドをコールするかしないかは、
+  拡張されたクラスに責任があります。
+  これは、<link
+  linkend="language.oop5.decon">コンストラクタおよびデストラクタ</link>, <link
+  linkend="language.oop5.overloading">オーバーロード</link>, そして <link
+  linkend="language.oop5.magic">マジック</link> メソッドの定義にも
+  適用されます。
+ </para>
+
+ <example>
+  <title>親クラスのメソッドをコールする</title>
+  <programlisting role="php">
+<![CDATA[
+<?php
+class MyClass
+{
+    protected function myFunc() {
+        echo "MyClass::myFunc()\n";
+    }
+}
+
+class OtherClass extends MyClass
+{
+    // 親の定義をオーバーライドします
+    public function myFunc()
+    {
+        // それでも親の関数をコールできます
+        parent::myFunc();
+        echo "OtherClass::myFunc()\n";
+    }
+}
+
+$class = new OtherClass();
+$class->myFunc();
+?>
+]]>
+  </programlisting>
+ </example>
+ <para>
+  <link linkend="language.oop5.basic.class.this">静的コールのトリックに関するサンプル</link> も参照ください。
+ </para>
+
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

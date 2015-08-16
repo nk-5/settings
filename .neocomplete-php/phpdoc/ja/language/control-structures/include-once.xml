@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision: 337133 $ -->
+<!-- EN-Revision: 337130 Maintainer: takagi Status: ready -->
+
+<sect1 xml:id="function.include-once" xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title>include_once</title>
+ <?phpdoc print-version-for="include_once"?>
+ <para>
+  <literal>include_once</literal> 命令は、スクリプトの実行時に指定
+  したファイルを読み込み評価します。この動作は、
+  <function>include</function> 命令と似ていますが、ファイルからのコー
+  ドが既に読み込まれている場合は、再度読み込まれないという重要な違い
+  があります。また、include_once は &true; を返します。その名が示す通り、ファイルは一度しか読み込まれません。
+ </para>
+ <para>
+  <literal>include_once</literal> は、スクリプトの実行時に同じファイ
+  ルが複数回読み込まれ、評価される可能性がある場合に、関数の再定義や
+  変数値の再代入といった問題を回避するために一回だけ読み込ませるため
+  に使用します。
+ </para>
+ <para>
+  この関数の動作についての情報は
+  <function>include</function> のドキュメントを参照ください。
+ </para>
+ <para>
+  <note>
+  <para>
+   PHP 4 では、大文字小文字を区別しない OS (Windows など)
+   では <literal>_once</literal> の動作が多少異なります。次に例を示します。
+   <example>
+    <title>PHP 4 における、大文字小文字を区別しない OS 上での <literal>include_once</literal></title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+include_once "a.php"; // a.phpを読み込みます
+include_once "A.php"; // これもa.phpを読み込みます! (PHP 4 のみ)
+?>
+]]>
+     </programlisting>
+    </example>
+    この挙動は PHP 5 で変更されました。たとえば Windows ではまず最初にパスが正規化され、
+    <filename>C:\PROGRA~1\A.php</filename> は
+    <filename>C:\Program Files\a.php</filename> と同じ扱いとなります。
+    ファイルは一度だけ読み込まれるようになります。
+   </para>
+  </note>
+ </para>
+</sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

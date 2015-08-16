@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: 331913 Maintainer: takagi Status: ready -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id="imagick.setimagedelay">
+ <refnamediv>
+  <refname>Imagick::setImageDelay</refname>
+  <refpurpose>画像の遅延を設定する</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>Imagick::setImageDelay</methodname>
+   <methodparam><type>int</type><parameter>delay</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   画像の遅延を設定します。アニメーション画像の場合、この値は、
+   今のフレームから次のフレームに移動するまでの時間になります。
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>delay</parameter></term>
+     <listitem>
+      <para>
+       画像を表示させる時間を 'ticks' で表した値。
+       アニメーション GIF の場合は 1 秒間に 100 ticks なので、
+       20 を設定すると 20/100 秒つまり 1/5 秒ということになります。
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &imagick.return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="errors">
+  &reftitle.errors;
+  <para>
+   &imagick.imagick.throws;
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>Imagick::setImageDelay</function> を使ったアニメーション GIF の変更</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+// アニメーション GIF を変更し、各フレームの表示時間を 50ms から 0ms に徐々に変えていきます。
+// 0ms にすると、たいていのブラウザでは表示をスキップするようになります。
+$imagick = new Imagick(realpath("Test.gif"));
+$imagick = $imagick->coalesceImages();
+
+$frameCount = 0;
+
+foreach ($imagick as $frame) {
+    $imagick->setImageDelay((($frameCount % 11) * 5));
+    $frameCount++;
+}
+
+$imagick = $imagick->deconstructImages();
+
+$imagick->writeImages("/path/to/save/output.gif", true);
+
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+ </refsect1>
+
+</refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

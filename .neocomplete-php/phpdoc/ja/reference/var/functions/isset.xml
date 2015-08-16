@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision: 336716 $ -->
+<!-- EN-Revision: 336715 Maintainer: hirokawa Status: ready -->
+<!-- CREDITS: shimooka -->
+<refentry xml:id="function.isset" xmlns="http://docbook.org/ns/docbook">
+ <refnamediv>
+  <refname>isset</refname>
+  <refpurpose>変数がセットされていること、そして &null; でないことを検査する</refpurpose>
+ </refnamediv>
+ 
+ <refsect1 role="description">
+ &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>isset</methodname>
+   <methodparam><type>mixed</type><parameter>var</parameter></methodparam>
+   <methodparam choice="opt"><type>mixed</type><parameter>...</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   変数がセットされており、それが &null; でないことを調べます。
+  </para>
+  <para>
+   変数が、<function>unset</function> により割当を解除された場合、
+   何も値が設定されていない状態になります。
+   &null;に設定されている変数を調べた場合、
+   <function>isset</function> は&false;を返します。
+   null文字(<literal>"\0"</literal>)はPHPの定数
+   &null;と等価ではないことにも注意してください。
+  </para>
+  <para>
+   複数のパラメータを渡した場合は、<function>isset</function>
+   はそれらすべてがセットされている場合にのみ &true; を返します。
+   左から順に評価を行い、セットされていない変数があった時点で処理を終了します。
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>var</parameter></term>
+     <listitem>
+      <para>
+       調べたい変数。
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>...</parameter></term>
+     <listitem>
+      <para>
+       別の変数。
+      </para>
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   <parameter>var</parameter> が存在して &null; 以外の値をとれば &true;、
+   そうでなければ &false; を返します。
+  </para>
+ </refsect1>
+
+ <refsect1 role="changelog">
+  &reftitle.changelog;
+  <para>
+   <informaltable>
+    <tgroup cols="2">
+     <thead>
+      <row>
+       <entry>&Version;</entry>
+       <entry>&Description;</entry>
+      </row>
+     </thead>
+     <tbody>
+      <row>
+       <entry>5.4.0</entry>
+       <entry>
+        <para>
+         文字列のオフセットに非数値を指定した場合は &false; を返すようになりました。
+        </para>
+       </entry>
+      </row>
+     </tbody>
+    </tgroup>
+   </informaltable>
+  </para>
+ </refsect1>
+
+ <refsect1 role="examples">
+  &reftitle.examples;
+  <para>
+   <example>
+    <title><function>isset</function> の例</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$var = '';
+
+// これは TRUE と評価されるので、テキストが出力される
+if (isset($var)) {
+    echo "This var is set so I will print.";
+}
+
+// 次の例では、isset() の戻り値を出力するため var_dump を
+// 使用している
+
+$a = "test";
+$b = "anothertest";
+
+var_dump(isset($a));      // TRUE
+var_dump(isset($a, $b)); // TRUE
+
+unset ($a);
+
+var_dump(isset($a));     // FALSE
+var_dump(isset($a, $b)); // FALSE
+
+$foo = NULL;
+var_dump(isset($foo));   // FALSE
+
+?>
+]]>
+    </programlisting>
+   </example>
+  </para>
+  <para>
+   この関数は配列の要素に対しても動作します:
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<?php
+
+$a = array ('test' => 1, 'hello' => NULL, 'pie' => array('a' => 'apple'));
+
+var_dump(isset($a['test']));            // TRUE
+var_dump(isset($a['foo']));             // FALSE
+var_dump(isset($a['hello']));           // FALSE
+
+// キー 'hello' は NULL と等しいのでセットされていないと見なされる。
+// もし NULL なキー値に対してチェックを行いたい場合、次を試してみること:
+var_dump(array_key_exists('hello', $a)); // TRUE
+
+// 配列の深い要素の値のチェック
+var_dump(isset($a['pie']['a']));        // TRUE
+var_dump(isset($a['pie']['b']));        // FALSE
+var_dump(isset($a['cake']['a']['b']));  // FALSE
+
+?>
+]]>
+    </programlisting>
+   </informalexample>
+  </para>
+  <example>
+   <title>文字列のオフセットに対する <function>isset</function></title>
+   <para>
+    PHP 5.4 以降では、文字列内でのオフセット指定を渡したときの
+    <function>isset</function> の挙動が変わりました。
+   </para>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$expected_array_got_string = 'somestring';
+var_dump(isset($expected_array_got_string['some_key']));
+var_dump(isset($expected_array_got_string[0]));
+var_dump(isset($expected_array_got_string['0']));
+var_dump(isset($expected_array_got_string[0.5]));
+var_dump(isset($expected_array_got_string['0.5']));
+var_dump(isset($expected_array_got_string['0 Mostel']));
+?>
+]]>
+   </programlisting>
+   &example.outputs.53;
+   <screen>
+<![CDATA[
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+bool(true)
+]]>
+   </screen>
+   &example.outputs.54;
+   <screen>
+<![CDATA[
+bool(false)
+bool(true)
+bool(true)
+bool(true)
+bool(false)
+bool(false)
+]]>
+   </screen>
+  </example>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <warning>
+   <para>
+    <function>isset</function> は何らかの値が渡された
+    変数の場合のみ動作します。そうでない場合、パースエラーとなります。
+    もし <link linkend="language.constants">定数</link>
+    が設定されているかどうかをチェックする場合は、
+    <function>defined</function> を使用してください。
+   </para>
+  </warning>
+  &note.language-construct;
+  <note>
+   <para>
+    オブジェクトのアクセス不能なプロパティに対して <function>isset</function>
+    を使用した場合は、もしオーバーロードメソッド
+    <link linkend="object.isset">__isset()</link>
+    が宣言されていればそれをコールします。
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>empty</function></member>
+    <member><link linkend="object.isset">__isset()</link></member>
+    <member><function>unset</function></member>
+    <member><function>defined</function></member>
+    <member><link linkend="types.comparisons">PHP 型の比較表</link></member>
+    <member><function>array_key_exists</function></member>
+    <member><function>is_null</function></member>
+    <member>エラー制御演算子 <link linkend="language.operators.errorcontrol">@</link></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

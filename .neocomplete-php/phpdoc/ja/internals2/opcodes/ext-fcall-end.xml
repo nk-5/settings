@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision: 324651 $ -->
+<!-- EN-Revision: 324373 Maintainer: takagi Status: ready -->
+<section xml:id="internals2.opcodes.ext-fcall-end">
+ <title>EXT_FCALL_END</title>
+ <section xml:id="internals2.opcodes.ext-fcall-end.code">
+  <title>PHP コード</title>
+  <programlisting role="php">
+   <![CDATA[
+<?php 
+/*
+ * 
+ * opcode number: 103
+ * No sample PHP yet */
+?>
+]]>
+  </programlisting>
+ </section>
+</section>

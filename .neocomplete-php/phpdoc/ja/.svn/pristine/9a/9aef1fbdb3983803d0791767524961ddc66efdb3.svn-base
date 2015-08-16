@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision$ -->
+<!-- EN-Revision: 337351 Maintainer: hirokawa Status: ready -->
+<!-- CREDITS: takagi, shimooka -->
+
+ <chapter xml:id="language.basic-syntax" xmlns="http://docbook.org/ns/docbook">
+  <title>基本的な構文</title>
+  <sect1 xml:id="language.basic-syntax.phptags">
+   <title>PHP タグ</title>
+   <para>
+    PHP はファイルを解析して開始タグと終了タグ
+    (<literal>&lt;?php</literal> と <literal>?&gt;</literal>) を探します。
+    タグが見つかると、PHP はコードの実行を開始したり終了したりします。
+    このような仕組みにより、PHP を他のあらゆる形式のドキュメント中に
+    埋め込むことができるのです。つまり、開始タグと終了タグで囲まれている
+    箇所以外のすべての部分は、PHP パーサに無視されます。
+   </para>
+   <para>
+    PHP では、短い形式の開始タグ <literal>&lt;?</literal> も使えます
+    (しかしこれはおすすめしません。というのも、この形式のタグは &php.ini; で
+    <link linkend="ini.short-open-tag">short_open_tag</link> を有効にするか
+    <option>--enable-short-tags</option> オプションつきで PHP を configure した場合でないと使えないからです)。
+   </para>
+   <para>
+    ファイル全体が純粋な PHP コードである場合は、ファイルの最後の終了タグは省略するのがおすすめです。
+    終了タグの後に余分な空白や改行があると、予期せぬ挙動を引き起こす場合があるからです。
+    余分な空白や改行のせいで PHP が出力バッファリングを開始し、その時点の内容を意図せず出力してしまうことになります。
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+echo "みなさん、こんにちは";
+
+// ... いろんなコードたち
+
+echo "最後のごあいさつ";
+
+// PHP 終了タグを書かずに、ここでスクリプトを終わります。
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+   <para>
+    <table>
+     &reftitle.changelog;
+     <tgroup cols="2">
+      <thead>
+       <row>
+        <entry>&Version;</entry>
+        <entry>&Description;</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>7.0.0</entry>
+         <entry>
+          ASP タグ (<code>&lt;%</code>, <code>%&gt;</code>,
+          <code>&lt;%=</code>) や script タグ
+          (<code>&lt;script language="php"&gt;</code>)
+          が PHP から削除されました。
+         </entry>
+       </row>
+       <row>
+        <entry>5.4.0</entry>
+         <entry>
+          short_open_tag の設定にかかわらず、&lt;?= は常に使えるようになりました。
+         </entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </table>
+   </para>
+  </sect1>
+  <sect1 xml:id="language.basic-syntax.phpmode">
+   <title>HTML からの脱出</title>
+   <para>
+    PHP のパーサは、開始タグと終了タグに囲まれていない部分をすべて無視します。
+    そのおかげで、PHP のファイルにそれ以外のコンテンツを混在させることができるのです。
+    たとえば PHP を HTML ドキュメントに組み込んで、テンプレートを作ったりすることもできます。
+    <example>
+     <programlisting role="php">
+<![CDATA[
+<p>この部分は PHP から無視され、そのままブラウザには表示されます。</p>
+<?php echo '一方、この部分はパースされます。'; ?>
+<p>この部分も PHP から無視され、そのままブラウザには表示されます。</p>
+]]>
+     </programlisting>
+    </example>
+    これは期待通りに動作します。なぜなら、PHP インタプリタは ?&gt; 終了タグを見つけると
+    それ以降新たに開始タグを見つけるまでの内容を何でも出力するからです
+    (終了タグの直後の改行は別です。
+    <link linkend="language.basic-syntax.instruction-separation">命令の分離</link>
+    を参照ください)。
+    しかし、PHP が条件文の中にいる場合は話が別です。
+    その場合は、まず条件式の結果を判定してから何をスキップするかを判断します。
+    次の例を参照ください。
+   </para>
+   <para>
+    条件文を使った例です。
+    <example>
+     <title>条件文を使った高度な脱出</title>
+     <programlisting role="php">
+<![CDATA[
+<?php if ($expression == true): ?>
+  条件式が真の場合にこれが表示されます。
+<?php else: ?>
+  それ以外の場合にこちらが表示されます。
+<?php endif; ?>
+]]>
+     </programlisting>
+    </example>
+    この例では、PHP は条件を満たさないブロックを処理しません。たとえそれが
+    PHP の開始タグと終了タグに囲まれた部分でなくても、条件文にしたがってそこを読み飛ばします。
+    というのも、PHP のインタプリタは条件を満たさない箇所をブロックごと読み飛ばすからです。
+   </para>
+   <para>
+    大量のテキストを出力する際に
+    <function>echo</function> や <function>print</function>
+    を用いることを考えると、このように一度 PHP のパースモードを抜けるほうが効率的です。
+   </para>
+   <para>
+    PHP 5 では、PHP の cnfigure 方法に応じて最大で五種類の開始タグ・終了タグが使えます。
+    そのうちの二つである
+    <code>&lt;?php ?&gt;</code> と
+    <code>&lt;script language="php"&gt; &lt;/script&gt;</code> は、常に使えます。
+    また、短い形式の echo タグ <code>&lt;?= ?&gt;</code> も、
+    PHP 5.4.0 以降では常に使えます。
+   </para>
+   <para>
+    残りの二種類は、短縮型のタグと <productname>ASP</productname> スタイルのタグです。
+    中には短縮型のタグや <productname>ASP</productname> スタイルのタグを
+    便利に感じる人がいるかも知れませんが、長いタグに比べると移植性に欠けます。
+    また一般的には推奨されていません。
+    <note>
+     <para>
+      さらに注意しなければならないことがあります。PHP コードを XML や XHTML に
+      埋め込む場合には、標準規格に従うために &lt;?php ?&gt; タグを使用する
+      必要があるでしょう。
+     </para>
+    </note>
+   </para>
+   <para>
+    PHP 7 では、<productname>ASP</productname> タグや
+    <code>&lt;script language="php"&gt;</code> タグが使えなくなりました。これから PHP のコードを書くときには、
+    互換性を考慮して <code>&lt;?php ?&gt;</code> や <code>&lt;?= ?&gt;</code>
+    だけを使うことを推奨します。
+   </para>
+   <para>
+    <example>
+     <title>PHP の開始タグと終了タグ</title>
+     <programlisting role="php">
+<![CDATA[
+1.  <?php echo 'XHTMLまたはXMLドキュメントの中でPHPコードを扱いたい場合は、このタグを使いましょう'; ?>
+
+2.  短縮型の echo タグを使って <?= 'この文字列を表示' ?> とすることもできます。
+    これは PHP 5.4.0 以降では常に使えて、
+    <?php echo 'この文字列を表示' ?> と同じ意味になります。
+
+3.  <? echo 'このコードは短縮型のタグに囲まれていますが、'.
+            'short_open_tag が有効な場合ににしか動作しません'; ?>
+
+4.  <script language="php">
+        echo '(FrontPageのような) いくつかのエディタは、このタグの中の処理命令を好みません';
+    </script>
+    この構文は、PHP 7.0.0 で削除されました。
+
+5.  <% echo 'オプションでASP形式のタグを使用可能です'; %>
+    <%= $variable; %> これは、<% echo $variable; %> のショートカットです。
+    これらの構文は、PHP 7.0.0 で削除されました。
+]]>
+     </programlisting>
+    </example>
+   </para>
+   <para>
+    短縮型のタグ（例 3.）が有効なのは、&php.ini; 設定ファイルのディレクティブ
+    <link linkend="ini.short-open-tag">short_open_tag</link> が
+    有効になっている場合か PHP が <option>--enable-short-tags</option>
+    オプションつきで configure されている場合のみです。
+   </para>
+   <para>
+    <productname>ASP</productname> 型のタグ（例 5.）が有効なのは、
+    &php.ini; 設定ファイルのディレクティブ
+    <link linkend="ini.asp-tags">asp_tags</link> が有効になっている場合のみです。
+    また、このタグは PHP 7.0.0 で廃止されました。
+   </para>
+   <para>
+   <note>
+    <para>
+     再利用されるか、または、自分の制御下にないPHPサーバーで運用される
+     アプリケーションまたはライブラリを開発する場合、短縮型のタグの
+     使用は避けるべきです。これは、短縮型のタグがターゲットサーバー
+     でサポートされていない可能性があるためです。
+     可搬性のある、再配布可能なコードでは、短縮型のタグを使用しない
+     ようにしてください。
+    </para>
+   </note>
+    <note>
+     <para>
+      PHP 5.2 以前では、開始タグ <literal>&lt;?php</literal>
+      だけを書いてそれ以外に何も書いていないファイルは
+      パーサが処理することができませんでした。PHP 5.3
+      以降では、開始タグの後に空白が一文字でもあればそのようなファイルもパースできます。
+     </para>
+    </note>
+    <note>
+     <para>
+      PHP 5.4 以降では、短い形式の echo タグ <literal>&lt;?=</literal> は常に有効なタグとして認識されるようになりました。
+      <link linkend="ini.short-open-tag">short_open_tag</link> の設定には影響を受けません。
+     </para>
+    </note>
+   </para>
+  </sect1>
+  <sect1 xml:id="language.basic-syntax.instruction-separation">
+   <title>命令の分離</title>
+   <para>
+    C や Perl と同様に、PHP でもステートメントを区切りにはセミコロンが必要と
+    なります。PHP コードブロックの終了タグには自動的にセミコロンが含まれていると
+    認識されます。 従って PHP コードの最終行にはセミコロンを記述する必要はありません。
+    ブロックの終了タグは、直後に改行がある場合、それを含んだものになります。
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+    echo 'テストです';
+?>
+
+<?php echo 'テストです' ?>
+
+<?php echo '終了タグを省略しました';
+]]>
+     </programlisting>
+    </informalexample>
+    <note>
+     <para>
+      ファイル終端における PHP ブロックの終了タグはオプション（任意）です。
+      <function>include</function> や
+      <function>require</function> を利用する際には、
+      終了タグを省略する方が無難です。というのは、そうすることでファイルの最後に
+      予期せぬ空白文字があらわれてしまうことを防げますし、後でレスポンスに
+      ヘッダを付加することも可能となるからです。また、出力バッファリングを
+      使用しており、include したファイルの生成する部分の最後に余計な空白を
+      つけたくない場合などにも便利です。
+     </para>
+    </note>
+   </para>
+  </sect1>
+  <sect1 xml:id="language.basic-syntax.comments">
+   <title>コメント</title>
+   <para>
+    PHP は、'C', 'C++' および Unix シェル型（Perl 型）のコメントをサポートします。
+    例えば、
+
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+echo 'テストです'; // C++型の単一行用のコメント
+/* 複数行用のコメント
+   もう一行分のコメント */
+echo 'もうひとつのテストです';
+echo '最後のテストです'; # シェル型の単一行用のコメント
+?>
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+   <simpara>
+    "一行"コメントは、改行または PHP コードのブロックの終わり
+    のうちどちらか最初にくる方までです。
+    つまり、<literal>// ... ?&gt;</literal> 
+    あるいは <literal># ...  ?&gt;</literal> の後に続く HTML コードは
+    表示されるということです。?&gt; により PHP モードを終了して
+    HTML モードに戻ると、そこでは <literal>//</literal>
+    あるいは <literal>#</literal> は何の影響も
+    及ぼしません。<link linkend="ini.asp-tags">asp_tags</link>
+    設定ディレクティブが有効になっている場合、<literal>// %&gt;</literal>
+    および <literal># %&gt;</literal>
+    でも同じような動作になります。しかし、一行コメントの中の
+    <literal>&lt;/script&gt;</literal> では PHP モードを終了することは
+    ありません。
+   </simpara>
+   <para>
+   <informalexample>
+    <programlisting role="php">
+<![CDATA[
+<h1>これは <?php # echo 'シンプルな';?> 例</h1>
+<p>上の見出しは 'これは  例です。' となります。
+]]>
+    </programlisting>
+   </informalexample>
+   </para>
+   <simpara>
+    'C' 型のコメントは、最初に <literal>*/</literal> が現れた時点で終了します。
+    'C' 型のコメントがネストしないように注意する必要があります。
+    大きなブロックをコメントアウトしようとする際に、この間違いを犯しがちです。
+   </simpara>
+   <para>
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+<?php
+ /*
+    echo 'テストです'; /* このコメントが問題を生じます */
+ */
+?>
+]]>
+     </programlisting>
+    </informalexample>
+   </para>
+  </sect1>
+ </chapter>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->

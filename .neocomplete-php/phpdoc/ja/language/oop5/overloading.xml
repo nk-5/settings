@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision: 332601 $ -->
+<!-- EN-Revision: 332595 Maintainer: takagi Status: ready -->
+<!-- CREDITS: hirokawa,shimooka -->
+
+ <sect1 xml:id="language.oop5.overloading" xmlns="http://docbook.org/ns/docbook">
+  <title>オーバーロード</title>
+
+  <para>
+   PHP におけるオーバーロード機能は、
+   プロパティやメソッドを動的に
+   <quote>作成する</quote> ための手法です。
+   これらの動的エンティティは、マジックメソッドを用いて処理されます。
+   マジックメソッドは、クラス内でさまざまなアクションに対して用意することができます。
+  </para>
+
+  <para>
+   オーバーロードメソッドが起動するのは、
+   宣言されていないプロパティやメソッドを操作しようとしたときです。
+   また、現在のスコープからは
+   <link linkend="language.oop5.visibility">アクセス不能な</link>
+   プロパティやメソッドを操作しようとしたときにも起動します。
+   このセクションでは、これらの (宣言されていない、
+   あるいは現在のスコープからはアクセス不能な) プロパティやメソッドのことを
+   <quote>アクセス不能プロパティ</quote> および
+   <quote>アクセス不能メソッド</quote>
+   と表記することにします。
+  </para>
+
+  <para>
+   オーバーロードメソッドは、すべて <literal>public</literal>
+   で定義しなければなりません。
+  </para>
+
+  <note>
+   <para>
+    これらのマジックメソッドの引数は、
+    <link linkend="functions.arguments.by-reference">参照渡し</link>
+    とすることはできません。
+   </para>
+  </note>
+
+  <note>
+   <para>
+    PHP における <quote>オーバーロード</quote>
+    の解釈は、他の多くのオブジェクト指向言語とは異なります。
+    一般的に「オーバーロード」とは、
+    「名前は同じだけれども引数の数や型が異なるメソッドを複数用意できる」
+    という機能のことを指します。
+   </para>
+  </note>
+
+
+  <sect2 xml:id="language.oop5.overloading.changelog">
+   &reftitle.changelog;
+   <para>
+    <informaltable>
+     <tgroup cols="2">
+      <thead>
+       <row>
+        <entry>&Version;</entry>
+        <entry>&Description;</entry>
+       </row>
+      </thead>
+      <tbody>
+       <row>
+        <entry>5.3.0</entry>
+        <entry>
+         <link linkend="object.callstatic">__callStatic()</link> が追加されました。
+         public で、かつ static でない宣言を強制するような警告が追加されました。
+        </entry>
+       </row>
+       <row>
+        <entry>5.1.0</entry>
+        <entry>
+         <link linkend="object.isset">__isset()</link> と <link linkend="object.unset">__unset()</link>
+         が追加されました。
+         <link linkend="object.get">__get()</link> が private プロパティのオーバーロードに対応しました。
+        </entry>
+       </row>
+       <row>
+        <entry>5.0.0</entry>
+        <entry>
+         <link linkend="object.get">__get()</link> が追加されました。
+        </entry>
+       </row>
+      </tbody>
+     </tgroup>
+    </informaltable>
+   </para>
+  </sect2>
+
+
+  <sect2 xml:id="language.oop5.overloading.members">
+   <title>プロパティのオーバーロード</title>
+
+   <methodsynopsis xml:id="object.set">
+    <modifier>public</modifier> <type>void</type><methodname>__set</methodname>
+    <methodparam><type>string</type><parameter>name</parameter></methodparam>
+    <methodparam><type>mixed</type><parameter>value</parameter></methodparam>
+   </methodsynopsis>
+   <methodsynopsis xml:id="object.get">
+    <modifier>public</modifier> <type>mixed</type><methodname>__get</methodname>
+    <methodparam><type>string</type><parameter>name</parameter></methodparam>
+   </methodsynopsis>
+   <methodsynopsis xml:id="object.isset">
+    <modifier>public</modifier> <type>bool</type><methodname>__isset</methodname>
+    <methodparam><type>string</type><parameter>name</parameter></methodparam>
+   </methodsynopsis>
+   <methodsynopsis xml:id="object.unset">
+    <modifier>public</modifier> <type>void</type><methodname>__unset</methodname>
+    <methodparam><type>string</type><parameter>name</parameter></methodparam>
+   </methodsynopsis>
+
+   <para>
+    <link linkend="object.set">__set()</link> は、
+    アクセス不能プロパティへデータを書き込む際に実行されます。
+   </para>
+
+   <para>
+    <link linkend="object.get">__get()</link> は、
+    アクセス不能プロパティからデータを読み込む際に使用します。
+   </para>
+
+   <para>
+    <link linkend="object.isset">__isset()</link> は、
+    <function>isset</function> あるいは <function>empty</function>
+    をアクセス不能プロパティに対して実行したときに起動します。
+   </para>
+
+   <para>
+    <link linkend="object.unset">__unset()</link> は、
+    <function>unset</function>
+    をアクセス不能プロパティに対して実行したときに起動します。
+   </para>
+
+   <para>
+    引数 <varname>$name</varname> は、
+    操作しようとしたプロパティの名前です。
+    <link linkend="object.set">__set()</link> メソッドの引数
+    <varname>$value</varname> は、
+    <varname>$name</varname> に設定しようとした値となります。
+   </para>
+
+   <para>
+    プロパティのオーバーロードはオブジェクトのコンテキストでのみ動作します。
+    これらのマジックメソッドは、静的コンテキストでは起動しません。
+    したがって、これらのメソッドを
+    <link linkend="language.oop5.static">static</link>
+    宣言してはいけません。
+    PHP 5.3.0 以降、マジックオーバーロードメソッドを <literal>static</literal>
+    宣言すると警告が発生します。
+   </para>
+
+   <note>
+    <para>
+     <link linkend="object.set">__set()</link> の返り値は無視されます。
+     これは、PHP が代入演算子を処理する方法によるものです。
+     同様に <link linkend="object.get">__get()</link> は、
+     <literal><![CDATA[ $a = $obj->b = 8; ]]></literal>
+     のように代入と連結した場合には決してコールされません。
+    </para>
+   </note>
+
+   <example>
+    <title>
+     <link linkend="object.get">__get()</link>、
+     <link linkend="object.set">__set()</link>、<link linkend="object.isset">__isset()</link> および
+     <link linkend="object.unset">__unset()</link> メソッドを使ったプロパティのオーバーロードの例
+    </title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class PropertyTest
+{
+    /**  オーバーロードされるデータの場所  */
+    private $data = array();
+
+    /**  宣言されているプロパティにはオーバーロードは起動しません */
+    public $declared = 1;
+
+    /**  クラスの外部からアクセスした場合にのみこれがオーバーロードされます  */
+    private $hidden = 2;
+
+    public function __set($name, $value)
+    {
+        echo "Setting '$name' to '$value'\n";
+        $this->data[$name] = $value;
+    }
+
+    public function __get($name)
+    {
+        echo "Getting '$name'\n";
+        if (array_key_exists($name, $this->data)) {
+            return $this->data[$name];
+        }
+
+        $trace = debug_backtrace();
+        trigger_error(
+            'Undefined property via __get(): ' . $name .
+            ' in ' . $trace[0]['file'] .
+            ' on line ' . $trace[0]['line'],
+            E_USER_NOTICE);
+        return null;
+    }
+
+    /**  PHP 5.1.0 以降 */
+    public function __isset($name)
+    {
+        echo "Is '$name' set?\n";
+        return isset($this->data[$name]);
+    }
+
+    /**  PHP 5.1.0 以降 */
+    public function __unset($name)
+    {
+        echo "Unsetting '$name'\n";
+        unset($this->data[$name]);
+    }
+
+    /**  マジックメソッドではありません。単なる例として示しています  */
+    public function getHidden()
+    {
+        return $this->hidden;
+    }
+}
+
+
+echo "<pre>\n";
+
+$obj = new PropertyTest;
+
+$obj->a = 1;
+echo $obj->a . "\n\n";
+
+var_dump(isset($obj->a));
+unset($obj->a);
+var_dump(isset($obj->a));
+echo "\n";
+
+echo $obj->declared . "\n\n";
+
+echo "Let's experiment with the private property named 'hidden':\n";
+echo "Privates are visible inside the class, so __get() not used...\n";
+echo $obj->getHidden() . "\n";
+echo "Privates not visible outside of class, so __get() is used...\n";
+echo $obj->hidden . "\n";
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
+<![CDATA[
+Setting 'a' to '1'
+Getting 'a'
+1
+
+Is 'a' set?
+bool(true)
+Unsetting 'a'
+Is 'a' set?
+bool(false)
+
+1
+
+Let's experiment with the private property named 'hidden':
+Privates are visible inside the class, so __get() not used...
+2
+Privates not visible outside of class, so __get() is used...
+Getting 'hidden'
+
+
+Notice:  Undefined property via __get(): hidden in <file> on line 70 in <file> on line 29
+]]>
+    </screen>
+
+   </example>
+  </sect2>
+
+  <sect2 xml:id="language.oop5.overloading.methods">
+   <title>メソッドのオーバーロード</title>
+
+   <methodsynopsis xml:id="object.call">
+    <modifier>public</modifier> <type>mixed</type><methodname>__call</methodname>
+    <methodparam><type>string</type><parameter>name</parameter></methodparam>
+    <methodparam><type>array</type><parameter>arguments</parameter></methodparam>
+   </methodsynopsis>
+   <methodsynopsis xml:id="object.callstatic">
+    <modifier>public static</modifier> <type>mixed</type><methodname>__callStatic</methodname>
+    <methodparam><type>string</type><parameter>name</parameter></methodparam>
+    <methodparam><type>array</type><parameter>arguments</parameter></methodparam>
+   </methodsynopsis>
+
+   <para>
+    <link linkend="object.call">__call()</link> は、
+    アクセス不能メソッドをオブジェクトのコンテキストで実行したときに起動します。
+   </para>
+
+   <para>
+    <link linkend="object.callstatic">__callStatic()</link> は、
+    アクセス不能メソッドを静的コンテキストで実行したときに起動します。
+   </para>
+
+   <para>
+    引数 <varname>$name</varname> は、
+    コールしようとしたメソッドの名前です。
+    引数 <varname>$arguments</varname>
+    は配列で、メソッド <varname>$name</varname>
+    に渡そうとしたパラメータが格納されます。
+   </para>
+
+   <example>
+    <title>
+     <link linkend="object.call">__call()</link> および
+     <link linkend="object.callstatic">__callStatic()</link> メソッドによる、メソッドのオーバーロードの例
+    </title>
+    <programlisting role="php">
+  <![CDATA[
+<?php
+class MethodTest
+{
+    public function __call($name, $arguments)
+    {
+        // 注意: $name は大文字小文字を区別します
+        echo "Calling object method '$name' "
+             . implode(', ', $arguments). "\n";
+    }
+
+    /**  PHP 5.3.0 以降 */
+    public static function __callStatic($name, $arguments)
+    {
+        // 注意: $name は大文字小文字を区別します
+        echo "Calling static method '$name' "
+             . implode(', ', $arguments). "\n";
+    }
+}
+
+$obj = new MethodTest;
+$obj->runTest('in object context');
+
+MethodTest::runTest('in static context');  // PHP 5.3.0 以降
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen role="php">
+<![CDATA[
+Calling object method 'runTest' in object context
+Calling static method 'runTest' in static context
+]]>
+    </screen>
+   </example>
+
+  </sect2>
+
+ </sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

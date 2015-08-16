@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision: 337382 $ -->
+<!-- EN-Revision: 337360 Maintainer: takagi Status: ready -->
+<chapter xml:id="language.generators" xmlns="http://docbook.org/ns/docbook">
+ <title>ジェネレータ</title>
+
+ <sect1 xml:id="language.generators.overview">
+  <title>ジェネレータとは</title>
+  <?phpdoc print-version-for="generators"?>
+
+  <para>
+   ジェネレータを使えば、シンプルな
+   <link linkend="language.oop5.iterations">イテレータ</link>を簡単に実装できます。
+   <classname>Iterator</classname> インターフェイスを実装したクラスを用意する
+   オーバーヘッドや複雑さを心配する必要はありません。
+  </para>
+
+  <para>
+   ジェネレータを使うと、&foreach; でデータ群を順に処理するコードを書くときに
+   メモリ内で配列を組み立てなくても済むようになります。
+   メモリ内で配列を組み立てると memory_limit を越えてしまうかもしれないし、
+   無視できないほどの時間がかかってしまうかもしれません。
+   配列を作る代わりに、ジェネレータ関数を書くことになります。これは通常の
+   <link linkend="functions.user-defined">関数</link>と同じものですが、
+   ジェネレータ関数は一度だけ
+   <link linkend="functions.returning-values">return</link>
+   するのではなく、必要に応じて何度でも &yield; することができます。
+   つまり、値を繰り返し返せるということです。
+  </para>
+
+  <para>
+   シンプルな例として、<function>range</function> 関数をジェネレータで実装しなおしてみましょう。
+   標準の <function>range</function> 関数は、すべての値を含む配列を作ってそれを返します。
+   結果的に、かなり大きな配列になる可能性があります。たとえば
+   <command>range(0, 1000000)</command> を実行すると、
+   100 MB を超えるメモリを使うことになります。
+  </para>
+
+  <para>
+   その代替として、ジェネレータ <literal>xrange()</literal> を実装します。
+   必要なメモリは、<classname>Iterator</classname>
+   オブジェクトを作ってジェネレータの内部の状態を記録しておくのに必要なものだけになります。
+   1 KB 未満で収まるでしょう。
+  </para>
+
+  <example>
+   <title>ジェネレータを使った <function>range</function> の実装</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+function xrange($start, $limit, $step = 1) {
+    if ($start < $limit) {
+        if ($step <= 0) {
+            throw new LogicException('Step must be +ve');
+        }
+
+        for ($i = $start; $i <= $limit; $i += $step) {
+            yield $i;
+        }
+    } else {
+        if ($step >= 0) {
+            throw new LogicException('Step must be -ve');
+        }
+
+        for ($i = $start; $i >= $limit; $i += $step) {
+            yield $i;
+        }
+    }
+}
+
+/*
+ * 次の例で、range() と xrange() が同じ結果を返すことに注目しましょう
+ */
+
+echo 'Single digit odd numbers from range():  ';
+foreach (range(1, 9, 2) as $number) {
+    echo "$number ";
+}
+echo "\n";
+
+echo 'Single digit odd numbers from xrange(): ';
+foreach (xrange(1, 9, 2) as $number) {
+    echo "$number ";
+}
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Single digit odd numbers from range():  1 3 5 7 9 
+Single digit odd numbers from xrange(): 1 3 5 7 9 
+]]>
+   </screen>
+  </example>
+ </sect1>
+
+ <sect1 xml:id="language.generators.syntax">
+  <title>ジェネレータの構文</title>
+
+  <para>
+   ジェネレータ関数の見た目はふつうの関数とほぼ同じです。違うのは、値を返すのではなく、
+   必要なだけ値を &yield; することです。
+  </para>
+
+  <para>
+   ジェネレータ関数が呼ばれると、反復処理が可能なオブジェクトを返します。
+   このオブジェクトを (&foreach; ループなどで) 反復させると、
+   値が必要になるたびに PHP がジェネレータ関数を呼びます。
+   そして、ジェネレータが値を yield した時点の状態を保存しておき、
+   次に値が必要になったときにはそこから再開できるようにします。
+  </para>
+
+  <para>
+   yield できる値がなくなると、ジェネレータ関数は何もせず単純に終了します。
+   呼び出し元のコードでは、配列の要素をすべて処理し終えた後のように、そのまま処理が続きます。
+  </para>
+
+  <note>
+   <para>
+    ジェネレータは値を返すことができません。値を返そうとすると、コンパイルエラーになります。
+    ジェネレータの中で空の <command>return</command> 文を書いても文法上は問題ありませんが、
+    そこでジェネレータは終了します。
+   </para>
+  </note>
+
+  <sect2 xml:id="control-structures.yield">
+   <title><command>yield</command> キーワード</title>
+
+   <para>
+    ジェネレータ関数の肝となるのが <command>yield</command> キーワードです。
+    最もシンプルな書きかたをすると、yield 文の見た目は return 文とほぼ同じになります。
+    ただ、return の場合はそこで関数の実行を終了して値を返すのに対して、
+    yield の場合はジェネレータを呼び出しているループに値を戻して
+    ジェネレータ関数の実行を一時停止します。
+   </para>
+
+   <example>
+    <title>値を yield する単純な例</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+function gen_one_to_three() {
+    for ($i = 1; $i <= 3; $i++) {
+        // yield を繰り返す間、$i の値が維持されることに注目しましょう
+        yield $i;
+    }
+}
+
+$generator = gen_one_to_three();
+foreach ($generator as $value) {
+    echo "$value\n";
+}
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+1
+2
+3
+]]>
+    </screen>
+   </example>
+
+   <note>
+    <para>
+     内部的には整数の連番のキーが yield する値とペアになり、
+     配列と同じようになります。
+    </para>
+   </note>
+
+   <caution>
+    <para>
+     yield を式のコンテキスト (代入文の右辺など)
+     で使うときは、yield 文を括弧で囲む必要があります。
+     たとえば、PHP 5 では次のようになります。
+    </para>
+
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+      $data = (yield $value);
+]]>
+     </programlisting>
+    </informalexample>
+
+    <para>
+     次のように書くと、PHP 5 ではパースエラーになります。
+    </para>
+
+    <informalexample>
+     <programlisting role="php">
+<![CDATA[
+      $data = yield $value;
+]]>
+     </programlisting>
+    </informalexample>
+
+    <para>
+     PHP 7 では、この制限はありません。
+    </para>
+
+    <para>
+     この構文は、
+     <methodname>Generator::send</methodname>
+     メソッドと組み合わせて使えます。
+    </para>
+   </caution>
+
+   <sect3 xml:id="control-structures.yield.associative">
+    <title>値とキーの yield</title>
+
+    <para>
+     PHP は、数値添字の配列だけでなく連想配列にも対応しています。ジェネレータも例外ではありません。
+     先ほどの例のように単なる値を yield するだけでなく、
+     値と同時にキーも yield することができます。
+    </para>
+
+    <para>
+     キーと値のペアを yield する構文は連想配列の定義とよく似ており、次のようになります。
+    </para>
+
+    <example>
+     <title>キー/値 のペアの yield</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+/*
+ * 入力は各フィールドをセミコロンで区切ったものです
+ * 最初のフィールドが ID となり、これをキーとして使います
+ */
+
+$input = <<<'EOF'
+1;PHP;$が大好き
+2;Python;インデントが大好き
+3;Ruby;ブロックが大好き
+EOF;
+
+function input_parser($input) {
+    foreach (explode("\n", $input) as $line) {
+        $fields = explode(';', $line);
+        $id = array_shift($fields);
+
+        yield $id => $fields;
+    }
+}
+
+foreach (input_parser($input) as $id => $fields) {
+    echo "$id:\n";
+    echo "    $fields[0]\n";
+    echo "    $fields[1]\n";
+}
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+1:
+    PHP
+    $が大好き
+2:
+    Python
+    インデントが大好き
+3:
+    Ruby
+    ブロックが大好き
+]]>
+     </screen>
+    </example>
+
+    <caution>
+     <para>
+      先ほどの例のように値だけを yield するときと同様に、
+      キー/値 のペアを式のコンテキストで yield するときにも
+      yield 文を括弧で囲む必要があります。
+     </para>
+
+     <informalexample>
+      <programlisting role="php">
+<![CDATA[
+      $data = (yield $key => $value);
+]]>
+      </programlisting>
+     </informalexample>
+    </caution>
+   </sect3>
+
+   <sect3 xml:id="control-structures.yield.null">
+    <title>null 値の yield</title>
+
+    <para>
+     何も引数を渡さずに yield を呼ぶと、&null; 値を yield します。キーは自動的に割り振られます。
+    </para>
+
+    <example>
+     <title>&null; の yield</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function gen_three_nulls() {
+    foreach (range(1, 3) as $i) {
+        yield;
+    }
+}
+
+var_dump(iterator_to_array(gen_three_nulls()));
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+array(3) {
+  [0]=>
+  NULL
+  [1]=>
+  NULL
+  [2]=>
+  NULL
+}
+]]>
+     </screen>
+    </example>
+   </sect3>
+
+   <sect3 xml:id="control-structures.yield.references">
+    <title>参照による yield</title>
+
+    <para>
+     ジェネレータ関数は、値を参照として yield することもできます。
+     <link linkend="functions.returning-values">関数の結果を参照で返す</link>
+     ときと同じように、関数名の前にアンパサンドを付けます。
+    </para>
+
+    <example>
+     <title>参照による値の yield</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+function &gen_reference() {
+    $value = 3;
+
+    while ($value > 0) {
+        yield $value;
+    }
+}
+
+/*
+ * $number をループ内で変更していることに注目しましょう。
+ * このジェネレータは参照を yield するので、
+ * gen_reference() 内の $value が変わります。
+ */
+foreach (gen_reference() as &$number) {
+    echo (--$number).'... ';
+}
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+2... 1... 0... 
+]]>
+     </screen>
+    </example>
+   </sect3>
+  </sect2>
+
+  <sect2 xml:id="language.generators.object">
+   <title><classname>Generator</classname> オブジェクト</title>
+   <para>
+    ジェネレータ関数を最初に呼んだときには、内部クラス
+    <classname>Generator</classname> のオブジェクトを返します。
+    このオブジェクトは <classname>Iterator</classname> インターフェイスを実装しており、
+    前進しかできないイテレータオブジェクトと同じように振る舞います。
+   </para>
+  </sect2>
+   
+ </sect1>
+
+ <sect1 xml:id="language.generators.comparison">
+  <title>ジェネレータと <classname>Iterator</classname> オブジェクトとの比較</title>
+
+  <para>
+   ジェネレータの最大のメリットは、シンプルに書けることです。
+   <classname>Iterator</classname> を実装するのに比べて、必要な決まり文句の数がかなり少なくなります。
+   また、ジェネレータを使ったコードのほうが、一般的に読みやすくなります。
+   たとえば、次の関数とクラスを比べてみましょう。これらはどちらも同じ働きをするものです。
+  </para>
+
+  <informalexample>
+   <programlisting role="php">
+<![CDATA[
+<?php
+function getLinesFromFile($fileName) {
+    if (!$fileHandle = fopen($fileName, 'r')) {
+        return;
+    }
+ 
+    while (false !== $line = fgets($fileHandle)) {
+        yield $line;
+    }
+ 
+    fclose($fileHandle);
+}
+
+// これを、下のクラスと比べてみると……
+
+class LineIterator implements Iterator {
+    protected $fileHandle;
+ 
+    protected $line;
+    protected $i;
+ 
+    public function __construct($fileName) {
+        if (!$this->fileHandle = fopen($fileName, 'r')) {
+            throw new RuntimeException('Couldn\'t open file "' . $fileName . '"');
+        }
+    }
+ 
+    public function rewind() {
+        fseek($this->fileHandle, 0);
+        $this->line = fgets($this->fileHandle);
+        $this->i = 0;
+    }
+ 
+    public function valid() {
+        return false !== $this->line;
+    }
+ 
+    public function current() {
+        return $this->line;
+    }
+ 
+    public function key() {
+        return $this->i;
+    }
+ 
+    public function next() {
+        if (false !== $this->line) {
+            $this->line = fgets($this->fileHandle);
+            $this->i++;
+        }
+    }
+ 
+    public function __destruct() {
+        fclose($this->fileHandle);
+    }
+}
+?>
+]]>
+   </programlisting>
+  </informalexample>
+
+  <para>
+   しかし、柔軟性を実現するために犠牲にしていることもあります。
+   ジェネレータは前方にしか進めないイテレータなので、いったん反復処理が始まれば巻き戻すことができません。
+   これはつまり、同じジェネレータを何度も使い回せないということです。
+   ジェネレータ関数を呼んでもう一度作り直すか、
+   <link linkend="language.oop5.cloning">clone</link> でクローンしないといけません。
+  </para>
+ </sect1>
+</chapter>
+ 
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

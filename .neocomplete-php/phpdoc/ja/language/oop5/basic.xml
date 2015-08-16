@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision: 336716 $ -->
+<!-- EN-Revision: 336715 Maintainer: takagi Status: ready -->
+<!-- CREDITS: hirokawa -->
+
+<sect1 xml:id="language.oop5.basic" xmlns="http://docbook.org/ns/docbook">
+ <title>クラスの基礎</title>
+
+ <sect2 xml:id="language.oop5.basic.class">
+  <title>class</title>
+  <para>
+   各クラスの定義は、<literal>class</literal>キーワードで始まり、クラス名が続きます。
+   そしてその後に波括弧のペアが続き、
+   その中にはクラスのプロパティとメソッドの定義を記述します。
+   </para>
+   <para>
+    クラス名には、PHP の<link linkend="reserved">予約語</link>
+    以外でラベルとして有効なあらゆる名前を使用することができます。
+    有効なクラス名は、先頭が文字あるいはアンダースコアで始まり、
+    その後に任意の数の文字/数字/アンダースコアが続くものです。
+    正規表現で表すと、
+    <literal>^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$</literal>
+    のようになります。
+   </para>
+   <para>
+    クラスの中には、
+    <link linkend="language.oop5.constants">定数</link> や
+    <link linkend="language.oop5.properties">変数</link>
+    ("プロパティ" といいます) そして関数 ("メソッド" といいます)
+    を含めることができます。
+   </para>
+   <example>
+    <title>簡単なクラス定義</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class SimpleClass
+{
+    // プロパティの宣言
+    public $var = 'a default value';
+
+    // メソッドの宣言
+    public function displayVar() {
+        echo $this->var;
+    }
+}
+?>
+]]>
+    </programlisting>
+   </example>
+   <para>
+    メソッドがオブジェクトコンテキストからコールされる場合は、
+    疑似変数 <varname>$this</varname> が利用可能です。
+    <varname>$this</varname> は、呼び出し元オブジェクト
+    (通常は、メソッドが属するオブジェクトですが、
+    メソッドが第二のオブジェクトのオブジェクトの
+    コンテキストから <link linkend="language.oop5.static">スタティックに</link>
+    コールされる場合には、別のオブジェクトとなる場合もあります)
+    への参照です。
+   </para>
+   <para>
+    <example xml:id="language.oop5.basic.class.this">
+     <title><varname>$this</varname> 疑似変数の例</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class A
+{
+    function foo()
+    {
+        if (isset($this)) {
+            echo '$this is defined (';
+            echo get_class($this);
+            echo ")\n";
+        } else {
+            echo "\$this is not defined.\n";
+        }
+    }
+}
+
+class B
+{
+    function bar()
+    {
+        // 注意: E_STRICT が有効な場合、次の行で警告が発生します
+        A::foo();
+    }
+}
+
+$a = new A();
+$a->foo();
+
+// 注意: E_STRICT が有効な場合、次の行で警告が発生します
+A::foo();
+$b = new B();
+$b->bar();
+
+// 注意: E_STRICT が有効な場合、次の行で警告が発生します
+B::bar();
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+$this is defined (A)
+$this is not defined.
+$this is defined (B)
+$this is not defined.
+]]>
+    </screen>
+    </example>
+  </para>
+ </sect2>
+
+ <sect2 xml:id="language.oop5.basic.new">
+  <title>new</title>
+  <para>
+   あるクラスのインスタンスを生成するには、<literal>new</literal>
+   キーワードを使わなければなりません。エラー時に
+   <link linkend="language.exceptions">例外</link>をスローするような
+   <link linkend="language.oop5.decon">コンストラクタ</link>を定義していない限り、
+   オブジェクトが常に生成されます。
+   クラスは、そのインスタンスを作成する前に定義しなければなりません
+   (これが必須となる場合もあります)。
+  </para>
+   <para>
+    クラス名を含む文字列を <literal>new</literal> で指定すると、
+    そのクラスのインスタンスを作成します。クラスが名前空間に属している場合は、
+    完全修飾名を指定しなければなりません。
+   </para>
+  <example>
+   <title>インスタンスを作成する</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+$instance = new SimpleClass();
+
+// 変数を使うこともできます
+$className = 'SimpleClass';
+$instance = new $className(); // new SimpleClass()
+?>
+]]>
+   </programlisting>
+  </example>
+   <para>
+    クラスのコンテキストにおいては、
+    <literal>new self</literal> や <literal>new parent</literal>
+    のようにして新しいオブジェクトを作成することができます。
+   </para>
+  <para>
+   作成済みのクラスのインスタンスを新たな変数に代入する場合、新しい変数は、
+   代入されたオブジェクトと同じインスタンスにアクセスします。
+   この動作は、インスタンスを関数に渡す場合も同様です。
+   作成済みのオブジェクトのコピーは、その
+   <link linkend="language.oop5.cloning">クローンを作成</link>
+   することにより作成可能です。
+  </para>
+  <example>
+   <title>オブジェクトの代入</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+
+$instance = new SimpleClass();
+
+$assigned   =  $instance;
+$reference  =& $instance;
+
+$instance->var = '$assigned will have this value';
+
+$instance = null; // $instance と $reference は null になります
+
+var_dump($instance);
+var_dump($reference);
+var_dump($assigned);
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+NULL
+NULL
+object(SimpleClass)#1 (1) {
+   ["var"]=>
+     string(30) "$assigned will have this value"
+}
+]]>
+    </screen>
+   </example>
+   <para>
+    PHP 5.3.0 以降では、オブジェクトのインスタンスを作成する別の方法が新たに導入されました。
+   </para>
+   <example>
+    <title>新しいオブジェクトの作成</title>
+    <programlisting role="php">
+<![CDATA[
+<?php
+class Test
+{
+    static public function getNew()
+    {
+        return new static;
+    }
+}
+
+class Child extends Test
+{}
+
+$obj1 = new Test();
+$obj2 = new $obj1;
+var_dump($obj1 !== $obj2);
+
+$obj3 = Test::getNew();
+var_dump($obj3 instanceof Test);
+
+$obj4 = Child::getNew();
+var_dump($obj4 instanceof Child);
+?>
+]]>
+    </programlisting>
+    &example.outputs;
+    <screen>
+<![CDATA[
+bool(true)
+bool(true)
+bool(true)
+]]>
+   </screen>
+  </example>
+ </sect2>
+
+ <sect2 xml:id="language.oop5.basic.extends">
+  <title>extends</title>
+  <para>
+   クラスは、宣言部に <literal>extends</literal> キーワードを含めることで、他のクラスのメソッドと
+   プロパティを継承することができます。多重継承を行うことはできず、クラスが継承できるベース
+   クラスは一つだけです。
+  </para>
+  <para>
+    継承されたメソッドやプロパティをオーバーライドするには、
+    親クラスで定義されているのと同じ名前でそれを再宣言します。
+    しかし、親クラスでそのメソッドが
+    <link linkend="language.oop5.final">final</link>
+    定義されている場合はオーバーライドできません。
+    オーバーライドされた元のメソッドや静的プロパティにアクセスするには、
+    <link linkend="language.oop5.paamayim-nekudotayim">parent::</link>
+    で参照します。
+  </para>
+   <para>
+    メソッドをオーバーライドするときには、パラメータのシグネチャも同じでなければなりません。
+    もし違っていれば、PHP は <constant>E_STRICT</constant>
+    レベルのエラーとなります。ただしコンストラクタは例外で、
+    異なるパラメータでオーバーライドすることができます。
+   </para>
+  <example>
+   <title>簡単なクラスの継承</title>
+   <programlisting role="php">
+<![CDATA[
+<?php
+class ExtendClass extends SimpleClass
+{
+    // 親クラスのメソッドを再定義
+    function displayVar()
+    {
+        echo "Extending class\n";
+        parent::displayVar();
+    }
+}
+
+$extended = new ExtendClass();
+$extended->displayVar();
+?>
+]]>
+   </programlisting>
+   &example.outputs;
+   <screen>
+<![CDATA[
+Extending class
+a default value
+]]>
+   </screen>
+  </example>
+ </sect2>
+
+  <sect2 xml:id="language.oop5.basic.class.class">
+   <title>::class</title>
+
+   <para>
+    PHP 5.5 以降では、<literal>class</literal> キーワードでクラス名の解決ができるようになりました。
+    <literal>ClassName</literal> クラスの完全修飾名を文字列で取得するには、
+    <literal>ClassName::class</literal> とします。
+    これは、<link linkend="language.namespaces">
+    名前空間</link>つきのクラスと組み合わせると特に便利です。
+   </para>
+   <para>
+    <example xml:id="language.oop5.basic.class.class.name">
+     <title>クラス名の解決</title>
+     <programlisting role="php">
+<![CDATA[
+<?php
+namespace NS {
+    class ClassName {
+    }
+    
+    echo ClassName::class;
+}
+?>
+]]>
+     </programlisting>
+     &example.outputs;
+     <screen>
+<![CDATA[
+NS\ClassName
+]]>
+     </screen>
+    </example>
+   </para>
+  </sect2>
+ </sect1>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->

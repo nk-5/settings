@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Revision: 324167 $ -->
+<!-- EN-Revision: 324122 Maintainer: takagi Status: ready -->
+<!-- CREDITS: hirokawa -->
+<refentry xmlns="http://docbook.org/ns/docbook" xml:id='function.xml-set-end-namespace-decl-handler'>
+ <refnamediv>
+  <refname>xml_set_end_namespace_decl_handler</refname>
+  <refpurpose>名前空間終了ハンドラを設定する</refpurpose>
+ </refnamediv>
+
+ <refsect1 role="description">
+  &reftitle.description;
+  <methodsynopsis>
+   <type>bool</type><methodname>xml_set_end_namespace_decl_handler</methodname>
+   <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
+   <methodparam><type>callable</type><parameter>handler</parameter></methodparam>
+  </methodsynopsis>
+  <para>
+   名前空間宣言のスコープを抜けるときにコールされるハンドラを設定します。
+   これがコールされるのは、各名前空間宣言において、
+   名前空間が宣言された要素の終了タグのハンドラがコールされた後のことです。
+  </para>
+ </refsect1>
+
+ <refsect1 role="parameters">
+  &reftitle.parameters;
+  <para>
+   <variablelist>
+    <varlistentry>
+     <term><parameter>parser</parameter></term>
+     <listitem>
+      <para>
+       XML パーサへの参照。
+      </para>
+     </listitem>
+    </varlistentry>
+    <varlistentry>
+     <term><parameter>handler</parameter></term>
+     <listitem>
+      <para>
+       <parameter>handler</parameter> には、関数名を文字列で指定します。
+       これは、<parameter>parser</parameter> に対して
+       <function>xml_parse</function> がコールされたときに存在しなければなりません。
+      </para>
+      <para>
+       <parameter>handler</parameter> で指定した関数は、
+       2 つのパラメータを受け取って整数値を返すものでなければなりません。
+       返り値が &false; (何も値を返さなかったときもこれにあてはまります)
+       の場合、XML パーサはパースを停止し、
+       <function>xml_get_error_code</function> は
+       <constant>XML_ERROR_EXTERNAL_ENTITY_HANDLING</constant> を返します。
+       <methodsynopsis>
+        <methodname><replaceable>handler</replaceable></methodname>
+        <methodparam><type>resource</type><parameter>parser</parameter></methodparam>
+        <methodparam><type>string</type><parameter>prefix</parameter></methodparam>
+       </methodsynopsis>
+       <variablelist>
+        <varlistentry>
+         <term><parameter>parser</parameter></term>
+         <listitem>
+          <simpara>
+           最初のパラメータ <replaceable>parser</replaceable>
+           は、ハンドラをコールした XML パーサへの参照です。
+          </simpara>
+         </listitem>
+        </varlistentry>
+        <varlistentry>
+         <term><parameter>prefix</parameter></term>
+         <listitem>
+          <simpara>
+           XML オブジェクト内の名前空間を参照する際に使う文字列。
+          </simpara>
+         </listitem>
+        </varlistentry>
+       </variablelist>
+      </para>
+      <para>
+       ハンドラ関数に空文字列や &false; を設定すると、
+       そのハンドラは無効になります。
+      </para>
+      &note.func-callback;
+     </listitem>
+    </varlistentry>
+   </variablelist>
+  </para>
+ </refsect1>
+
+ <refsect1 role="returnvalues">
+  &reftitle.returnvalues;
+  <para>
+   &return.success;
+  </para>
+ </refsect1>
+
+ <refsect1 role="notes">
+  &reftitle.notes;
+  <note>
+   <para>
+    このイベントは LibXML ではサポートされていません。
+   </para>
+  </note>
+ </refsect1>
+
+ <refsect1 role="seealso">
+  &reftitle.seealso;
+  <para>
+   <simplelist>
+    <member><function>xml_set_start_namespace_decl_handler</function></member>
+   </simplelist>
+  </para>
+ </refsect1>
+
+</refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:1
+sgml-indent-data:t
+indent-tabs-mode:nil
+sgml-parent-document:nil
+sgml-default-dtd-file:"~/.phpdoc/manual.ced"
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+vim600: syn=xml fen fdm=syntax fdl=2 si
+vim: et tw=78 syn=sgml
+vi: ts=1 sw=1
+-->
