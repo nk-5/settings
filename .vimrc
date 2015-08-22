@@ -33,6 +33,7 @@ NeoBundle 'tpope/vim-surround'
 
 " Vimのカラースキーマ
 NeoBundle 'tomasr/molokai'
+NeoBundle 'chriskempson/vim-tomorrow-theme'
 
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'ujihisa/unite-colorscheme'
@@ -218,16 +219,7 @@ let g:vim_markdown_folding_disabled = 1
 
 au BufRead,BufNewFile *.md set filetype=markdown
 
-"colorscheme "molokai"
-if &term =~ "xterm-256color" || "screen-256color"
-  set t_Co=256
-  set t_Sf=[3%dm
-  set t_Sb=[4%dm
-elseif &term =~ "xterm-color"
-  set t_Co=8
-  set t_Sf=[3%dm
-  set t_Sb=[4%dm
-endif
+syntax on
 
 " highlight each language in markdown
 " http://mattn.kaoriya.net/software/vim/20140523124903.htm
@@ -243,6 +235,16 @@ let g:markdown_fenced_languages = [
 \  'erlang',
 \]
 
+" Markdownプレビュー
+" :PrevimOpenでブラウザ表示
+NeoBundle 'plasticboy/vim-markdown'
+NeoBundle 'kannokanno/previm'
+NeoBundle 'tyru/open-browser.vim'
+
+au BufRead,BufNewFile *.md set filetype=markdown
+let g:previm_open_cmd = 'open -a Firefox'
+
+
 set hlsearch
 set number
 
@@ -251,6 +253,9 @@ set tabstop=2 "画面上でタブ文字が占める幅
 set shiftwidth=2 "自動インデントでずれる幅
 set softtabstop=2 "連続した空白に対してタブキーやバックスペースキーでカーソルが動く幅
 set autoindent "改行時に前の行のインデントを継続する
+
+" backspace有効化
+set backspace=indent,eol,start
 
 "クリップボードにコピーする
 set clipboard=unnamed,autoselect
@@ -268,10 +273,20 @@ vmap ,, <Plug>NERDCommenterToggle
 syntax enable
 hi PmenuSel cterm=reverse ctermfg=33 ctermbg=222 gui=reverse guifg=#3399ff guibg=#f0e68c]]]]
 
+
 call neobundle#end()
 
 " Required:
 filetype plugin indent on
+
+" colorschemeの設定前に書くこと
+autocmd ColorScheme * highlight LineNr ctermfg=210
+
+colorscheme Tomorrow-Night-Bright
+
+" :if ! has("migemo")
+    " :finish
+" :endif
 
 
 " If there are uninstalled bundles found on startup,
