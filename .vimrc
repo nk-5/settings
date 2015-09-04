@@ -20,13 +20,15 @@ NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/neomru.vim'
 NeoBundle 'scrooloose/nerdtree'
 
+" インデント整形"
+NeoBundle 'Yggdroot/indentLine'
+
 " Ruby向けにendを自動挿入してくれる
 NeoBundle 'tpope/vim-endwise'
 
 " コメントON/OFFを手軽に実行
 NeoBundle 'tomtom/tcomment_vim'
 NeoBundle 'The-NERD-Commenter'
-
 
 " シングルクオートとダブルクオートの入れ替え等csコマンド
 NeoBundle 'tpope/vim-surround'
@@ -40,6 +42,9 @@ NeoBundle 'ujihisa/unite-colorscheme'
 
 NeoBundle 'Townk/vim-autoclose'
 NeoBundle 'scrooloose/syntastic'
+
+" Vimのモードテーマ"
+NeoBundle 'itchyny/lightline.vim'
 
 "twig syntax
 NeoBundle 'evidens/vim-twig'
@@ -249,6 +254,10 @@ set hlsearch
 set number
 
 "インデントとタブ
+let g:indentLine_faster = 1
+nmap <silent><Leader>i :<C-u>IndentLinesToggle<CR>
+
+set expandtab "タブを空白に変換"
 set tabstop=2 "画面上でタブ文字が占める幅
 set shiftwidth=2 "自動インデントでずれる幅
 set softtabstop=2 "連続した空白に対してタブキーやバックスペースキーでカーソルが動く幅
@@ -259,6 +268,13 @@ set backspace=indent,eol,start
 
 "クリップボードにコピーする
 set clipboard=unnamed,autoselect
+
+"Vimのモード設定"
+set noshowmode
+set laststatus=2
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ }
 
 "==========================
 ""NERDcommenter.vim
