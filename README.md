@@ -1,1 +1,4 @@
-# settings
+# dotfiles settings
+ - .vimrc
+ - .zshrc
+
