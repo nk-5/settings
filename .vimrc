@@ -49,19 +49,8 @@ NeoBundle 'itchyny/lightline.vim'
 "twig syntax
 NeoBundle 'evidens/vim-twig'
 
-"twigをhtmlとして読み込む
-au BufNewFile,BufRead *twig set filetype=html
-
 "エディタ内で実行
 NeoBundle 'thinca/vim-quickrun'
-
-" ========
-" Quickrun
-" ========
-" Initialization
-let g:quickrun_config = {}
-"let g:quickrun_config = {'*': {'hook/time/enable': '1'},}
-
 
 " Vim Pluginを非同期処理を行う
 NeoBundle 'Shougo/vimproc.vim', {
@@ -77,6 +66,19 @@ NeoBundle 'Shougo/vimproc.vim', {
 NeoBundle 'shawncplus/phpcomplete.vim'
 NeoBundle 'Shougo/neocomplete'
 
+" ========
+" Quickrun
+" ========
+" Initialization
+let g:quickrun_config = {}
+"let g:quickrun_config = {'*': {'hook/time/enable': '1'},}
+
+"twigをhtmlとして読み込む
+au BufNewFile,BufRead *twig set filetype=html
+
+" ========
+" Neocomplete 
+" ========
 "Note: This option must set it in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
 " Disable AutoComplPop.
 let g:acp_enableAtStartup = 0
@@ -183,9 +185,6 @@ let g:neosnippet#enable_snipmate_compatibility = 1
 " Tell Neosnippet about the other snippets
 let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/php_function.snip'
 
-
-
-
 " ファイルオープンを便利に
 NeoBundle 'Shougo/unite.vim'
 " Unite.vimで最近使ったファイルを表示できるようにする
@@ -285,10 +284,8 @@ let NERDSpaceDelims = 1
 nmap ,, <Plug>NERDCommenterToggle
 vmap ,, <Plug>NERDCommenterToggle
 
-
 syntax enable
 hi PmenuSel cterm=reverse ctermfg=33 ctermbg=222 gui=reverse guifg=#3399ff guibg=#f0e68c]]]]
-
 
 call neobundle#end()
 

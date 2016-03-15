@@ -22,7 +22,7 @@ autoload -Uz colors
 colors
 
 # emacs 風キーバインドにする
-bindkey -e
+# bindkey -e
 
 # ヒストリの設定
  HISTFILE=~/.zsh_history
@@ -143,10 +143,11 @@ function peco-select-history() {
     zle clear-screen
 }
 zle -N peco-select-history
-bindkey '^r' peco-select-history
+#bindkey '^r' peco-select-history
 
 # oh my zshの設定
-eval "$(rbenv init -)"
+
+# eval "$(rbenv init -)" centos7のvagrantで使用
 
 ########################################
 # エイリアス
@@ -186,6 +187,16 @@ elif which putclip >/dev/null 2>&1 ; then
 alias -g C='| putclip'
 fi
 
+# Terminal Command
+alias apaches='sudo apachectl start'
+alias apachee='sudo apachectl stop'
+alias apacher='sudo apachectl restart'
+alias apache_log='tail -f /var/log/apache2/error.log'
+
+alias mysqls='sudo mysql.server start'
+alias mysqle='sudo mysql.server stop'
+alias mysqlr='sudo mysql.server restart'
+
 # Git
 alias g="git"
 alias gs="git status"
@@ -196,8 +207,18 @@ alias gf="git fetch"
 alias gm="git merge"
 alias gb="git branch"
 alias gch="git checkout"
+alias gl="git log"
 
+# Vagrant
+alias vup="vagrant up"
+alias vs="vagrant status"
+alias vh="vagrant halt"
+alias vssh="vagrant ssh"
 #######################################
+
+alias vimrc_update="cp ~/.vimrc ~/settings/.vimrc"
+alias task="vim ~/Documents/Program_tips/schedule.md"
+
 # OS 別の設定
 case ${OSTYPE} in
 darwin*)
@@ -210,5 +231,6 @@ linux*)
 alias ls='ls -F --color=auto'
 ;;
 esac
+
 
 # vim:set ft=zsh: "
