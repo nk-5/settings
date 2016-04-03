@@ -1,0 +1,9 @@
+[color]
+  diff = auto
+  status = auto
+  branch = auto
+  ui = true
+[user]
+  name = nkws
+  email = nkws27@gmail.com
+

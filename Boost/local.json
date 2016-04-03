@@ -1,1 +1,463 @@
-../Library/Application Support/boost/local.json
+{
+  "articles": [
+    {
+      "title": "Luaを有効にする",
+      "content": "\n## Vimを削除する\n    $ udo yum remove vim-enhanced\n\n## 必要モジュールのインストール\n    $ cd /usr/local/src\n    $ sudo yum install mercurial ncurses-devel lua lua-devel\n\n## Vimをmakeインストール\n    $ hg clone https://vim.googlecode.com/hg/ vim\n    $ cd vim\n    $ ./configure \\\n        --with-features=huge \\\n        --enable-multibyte \\\n        --enable-luainterp=dynamic \\\n        --enable-gpm \\\n        --enable-cscope \\\n        --enable-fontset\n    $ make\n    $ make install",
+      "FolderKey": "2af48999cf2d338ca56f287b19a943c13a050403",
+      "tags": [],
+      "updatedAt": "2016-04-03T08:43:26.864Z",
+      "key": "16ea6425b48a392cbde9f54dbbacb31a6ed2f21b",
+      "createdAt": "2016-04-03T07:19:52.510Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "id": null,
+      "key": "f37f65302a8ebbd522e234d1684ec23069b5eed3",
+      "title": "CentOS7 Webサーバ構築",
+      "content": "### zsh\nsudo yum install -y zsh\nusermod -s /bin/zsh nk5\n\n### telnet インストール\nsudo yum install -y telnet\n\n### siege dstat git mercurial  インストール\nsudo yum install -y siege dstat git mercurial\n\n### httpd インストール\nsudo yum -y install httpd\nsudo systemctl start httpd\nsudo systemctl enable httpd\n\n### Varnish4 インストール\nsudo yum -y install varnish\nsudo systemctl start varnish\n#sudo systemctl enable varnish\nsudo systemctl restart httpd\n\n### PHP5.6 インストール\nyum install -y --enablerepo=remi-php56 php php-cli php-common php-devel php-pdo php-xml php-mbstring php-mysqlnd php-pecl-memcached php-pecl-xdebug php-opcache php-mcrypt\n\n### MySQL インストール\nyum install -y http://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-devel-5.6.27-1.linux_glibc2.5.x86_64.rpm http://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-server-5.6.27-1.linux_glibc2.5.x86_64.rpm http://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-shared-5.6.27-1.linux_glibc2.5.x86_64.rpm http://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-shared-compat-5.6.27-1.linux_glibc2.5.x86_64.rpm http://dev.mysql.com/get/Downloads/MySQL-5.6/MySQL-client-5.6.27-1.linux_glibc2.5.x86_64.rpm\nchkconfig mysql on\nservice mysql start\n\n### Memcached インストール\nyum install --enablerepo=remi -y memcached\nchkconfig memcached on\n",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "ee265f73052ddf5a5291b69d6c39e856e32732de",
+      "updatedAt": "2016-04-03T07:16:40.234Z",
+      "createdAt": "2016-03-16T17:36:01.094Z"
+    },
+    {
+      "title": "プラグインマネージャー",
+      "content": "***NeoBundleは開発終了となったため、Dein.vimを利用する***\n\n## Dein.vimのインストール\n    $ curl https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh -o /tmp/installer.sh\n    $ sh /tmp/installer.sh ~/.vim/dein\n\n*.vimrcの初期化: shellの実行で表示された内容を.vimrcに保存する*\n\n## プラグインのインストール\n    :call dein#install()\n    \n## プラグインのアップデート\n    :call dein#update()\n\n## インストールしているプラグインを表示\n    :Unite dein\n\n## プラグインをtomlファイルにまとめたときの注意点\n*今のところ.vimrcのbegin ~ end （tomlをloadしているとこ）を変更しないとインストールできない*\n",
+      "FolderKey": "2af48999cf2d338ca56f287b19a943c13a050403",
+      "tags": [],
+      "updatedAt": "2016-04-03T13:40:27.603Z",
+      "key": "bb3d52b7e7a4b179e2f962304765810c698f4429",
+      "createdAt": "2016-04-03T06:00:43.027Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "CentOS7 初期設定",
+      "content": "\n## yum の更新\n    $ sudo yum -y update\n\n## サードパーティ製リポジトリのインストール\n\n### yum-plugin-priorities\n\n    # yum -y install yum-plugin-priorities\n    # vim /etc/yum.repos.d/CentOS-Base.repo // priority=1を入れておく\n    # sed -i '14i priority=1' /etc/yum.repos.d/CentOS-Base.repo // base\n    # sed -i '23i priority=1' /etc/yum.repos.d/CentOS-Base.repo // updates\n    # sed -i '32i priority=1' /etc/yum.repos.d/CentOS-Base.repo // extras\n    \n### RPMforge\n \n    rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt\n    rpm -ivh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm\n    rpm -q rpmforge-release // インストール確認\n\n### EPEL\n    yum -y install epel-release\n    // rpm --import http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7\n    // rpm -ivh http://ftp-srv2.kddilabs.jp/Linux/packages/fedora/epel/7/x86_64/e/epel-release-7-5.noarch.rpm\n    // rpm -q epel-release // インストール確認\n\n### Remi\n    rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm\n    rpm -q remi-release // インストール確認\n\n### ELRepo\n    wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm\n    rpm -Uvh remi-release-7.rpm\n    rpm -q elrepo-release // インストール確認\n\n### ミラーサイトが404エラーを返す場合\n\n現状、fastestmirror が有効の場合 RPMforge でミラーサイトが404エラー返すことがあるので、\nRPMforgeを導入したい場合、ミラーサイトが出揃うまではfastestmirror を無効にしておいたほうがよさげです。\n\n    # vim /etc/yum/pluginconf.d/fastestmirror.conf\n    [main]\n    #enabled=1\n    enabled=0\n\n### リポジトリの設定\n    # vim /etc/yum.repos.d/\n\n\n## ファイアウォールの停止\n    # systemctl firewall stop\n    # systemctl disable firewall\n\n## SELinuxの無効化\n    $ getenforce // 確認：Enforcing（有効） or Permissive（無効）\n    # setenforce 0 // 無効化\n    # vim /etc/sysconfig/selinux\n    SELINUX=enforcing\n    ↓\n    SELINUX=disabled ←変更(起動時に無効にする)\n    \n    # sed -i -e \"s/SELINUX=enforcing/SELINUX=disabled/\" /etc/sysconfig/selinux //これでもOK\n\n## 文字コードの変更\n    # localectl // 確認\n    # localectl set-locale LANG=ja_JP.UTF-8 // UTF-8に変更\n\n",
+      "FolderKey": "ee265f73052ddf5a5291b69d6c39e856e32732de",
+      "tags": [],
+      "updatedAt": "2016-04-03T05:08:47.106Z",
+      "key": "d939c81018c538531fbfc3eeb781e7be7d9704aa",
+      "createdAt": "2016-03-16T01:48:02.332Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "Homebrew",
+      "content": "\n## Homebrewのインストール\n    /usr/bin/ruby -e \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)\"\n\n## Homebrewのコマンド\n    brew -v //バージョンの確認\n    brew doctor //状態の確認\n    brew install パッケージ名\n    brew update //Homebrew本体とパッケージ情報を最新にする\n    brew upgrade //パッケージの更新\n\n",
+      "FolderKey": "386d41efa3a28a2b2c6ddcc471aab614e0fa90e7",
+      "tags": [],
+      "updatedAt": "2016-04-02T09:49:06.332Z",
+      "key": "ffb3703808098e5ca63af0745307d28a50258cb5",
+      "createdAt": "2016-04-02T09:45:43.067Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "How to use zsh",
+      "content": "## インストール\n    sudo yum -y install zsh // centos7でもOK\n\n## 利用ユーザの設定\n    usermod -s /bin/zsh username\n\n## 現在のshellの確認\n    echo $SHELL\n\n## .zshrcの読み込み\n    source ~/.zshrc\n",
+      "FolderKey": "1eda03a1c8ef260340baf87c03c00178910d6f9a",
+      "tags": [],
+      "updatedAt": "2016-03-16T15:44:59.605Z",
+      "key": "d40f27d35648af1adff13bcebbecce74e201730e",
+      "createdAt": "2016-02-07T08:50:14.128Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "id": null,
+      "key": "547f20a22119f14dd4f61ba98bc6e50373138929",
+      "title": "コマンド",
+      "content": "# 基本\n\n## ファイル処理\n ### sed コマンド\n  #### オプション\n   - -e … 複数の条件を指定\n   - -i … 変更内容を上書きする\n \n  #### 条件内オプション\n   - c … 行をまるごと置換する\n   - s … 文字列を置換する\n   - a … 行を”追加”する\n   - i … 行を”挿入”する\n   - d … 行を削除する\n   - D … 先頭セグメントから最初の改行までを削除する\n   - c … 上書きする\n\n   #### 置換\n    $ sed \"s/変更前コード/変更後コード/g\" ファイルパス // gをつけない場合は検索にヒットした最初のみ\n    $ sed '○s/置換前文字列/置換後文字列/g' ファイルパス // ○行を対象に置換\n    $ sed '○,○s/置換前文字列/置換後文字列/g' // ○行から○行を対象に置換\n\n   #### 追加・挿入\n    $ sed '◯i 挿入する内容' // ◯行に挿入する（上書きはされず、◯行目にあった内容は◯+1にいく）\n    $ sed '◯a 追加する内容' // ◯行に追加する（◯行目の後ろに追加する）\n    \n   #### 削除・上書き\n    $ sed '◯d' // ◯行を削除\n    $ sed '◯, ◯d' // ◯行から◯行を削除\n    $ sed '◯c 上書き内容' // ◯行を上書き\n\n   #### 小文字から大文字\n    $ sed 's/\\(.*\\)/\\U\\1/'\n   #### 大文字から小文字\n    $ sed 's/\\(.*\\)/\\L\\1/'\n\n## リモート\n\n### コピー\n #### リモートからローカル\n     scp ユーザ名@リモートのホスト名:コピーしたいリモートのファイル ローカルのコピー先\n     \n #### ローカルからリモート\n    scp コピーしたいローカルのファイルパス ユーザ名@リモートのホスト名:保存したいパス\n    \n #### オプション\n    -r ディレクトリごと\n",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "ee265f73052ddf5a5291b69d6c39e856e32732de",
+      "updatedAt": "2016-03-16T10:07:13.155Z",
+      "createdAt": "2016-02-08T02:57:23.779Z"
+    },
+    {
+      "title": "config",
+      "content": "## リモートのリポジトリ宣言\n    git remote add origin git@github.com:nkws/リポジトリ名\n\n ## 基本設定\n    $ git config --global user.name \"nkws\"\n    $ git config --global user.email nkws27@gmail.com\n\n ## 色の設定\n    $ git config --global color.ui true",
+      "FolderKey": "be62800274db957294fb544d2e184f0b8521e6bf",
+      "tags": [],
+      "updatedAt": "2016-03-15T14:16:00.615Z",
+      "key": "1c43e07362899a778aab4943be251cd614bba4e6",
+      "createdAt": "2016-02-07T08:39:59.057Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "Vagrant 最初の設定",
+      "content": "\n## boxの作成\n    vagrant box add name box-url\n\n - 例：VG-dev-vagrant\n    - [参考URL](http://www.vagrantbox.es/)\n    - https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box\n\n## 初期化\n    mkdir vagrant-directory\n    cd vagrant-directory\n    vagrant init box-name\n\n## vagrantユーザで接続\n    vagrant ssh\n    sudo yum update -y // 一応最初にアップデートしとく\n\n## ユーザの作成\n    1. vagrant ユーザでログイン\n    sudo useradd user-name\n    sudo passwd user-name\n    password 入力\n\n## ssh user-name でログイン出来るようにする\n 1. ホスト側でssh設定を追加する\n 2. VagrantFileのnetwork設定を変更する\n    $ vim ~/.ssh/config\n    $ vim VagrantFile\n    \n```\n.ssh/config\n=====================================\nHost nk5 \n  Hostname 192.168.56.150\n  User nk5 \n  IdentityFile ~/.ssh/id_rsa_github\n=====================================\n\nVagrantFile\nconfig.vm.network \"private_network\", ip: \"192.168.56.150\"\n```\n\n## Vagrant側でgithub sshを適応させる\n    $ mkdir ~/.ssh\n    $ cd .ssh\n    $ ssh-keygen -t rsa\n    # 鍵ファイルの名前を聞かれるので、id_rsa_github とかにしておく\n    # パスワードはなしでOK\n    # これは最初につくった鍵と名前は同じだけど、完全に別物。分かりにくければ名前を変えてもOK。\n    \n    $ cat id_rsa_github.pub #コピーしてgithubに登録する\n    \n    $ ssh git@github.com\n    # Bad owner or permissions on /home/nk5/.ssh/config こんなエラーが出たら\n    $ chmod 600 ~/.ssh/config\n    \n## 作成したユーザでsudoを可能にする\n    $ vagrant ssh\n    [vagrant]$ sudo visudo\n\n    # ここのコメントアウトを外して保存\n    # %wheel  ALL=(ALL)       NOPASSWD: ALL\n    \n    [vagrant]$ sudo su -  \n    [root]$ usermod -G wheel,nk5\n    \n    $ cat /etc/group # 確認\n\n\n    \n\n\n\n\n\n\n",
+      "FolderKey": "1f05d3f49620d674ad6253a7f18f71d9b4430a2b",
+      "tags": [],
+      "updatedAt": "2016-03-15T13:01:20.055Z",
+      "key": "84e0b59d13272df4f971bebcdfef54b6412e795b",
+      "createdAt": "2016-03-14T02:31:40.119Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "id": null,
+      "key": "dbb089a0742899a1ac86db26c2e56edb30189024",
+      "title": "PHPStorm",
+      "content": "\n## PHPUnit from Vagrant \n(http://www.1x1.jp/blog/2014/09/phpstorm-phpunit-by-remote-innterpreter-with-vagrant.html)\n",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "cd051b303ab75af11b7158c29230189e8f220714",
+      "updatedAt": "2016-03-13T16:53:54.235Z",
+      "createdAt": "2016-03-09T01:57:26.117Z"
+    },
+    {
+      "title": "Postgres",
+      "content": "\n## postgres ユーザにログイン\n    #su - postgres\n\n## posgresにログイン\n    psql // ユーザ名、データベース名postgresでログイン\n\n## DB の作成\n    postgres#=create database データベース名\n\n## ユーザの作成\n    CREATE ROLE role_name WITH LOGIN PASSWORD 'password'\n\n## ユーザに権限を追加\n    \n## DB ログイン\n    psql -h localhost --username=ユーザ名 --dbname=データベース名\n\n",
+      "FolderKey": "49cde2d06a158c8921a7f0ee2bc4f67c4c0af924",
+      "tags": [],
+      "updatedAt": "2016-03-09T01:55:51.709Z",
+      "key": "4e92b0a2e65636e1142de0959a37f5c483f9df0d",
+      "createdAt": "2016-03-08T08:32:44.423Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "PHPUnit",
+      "content": "\n## phpunit.phar を移動させてグローバルにコマンドを実行させる\n    chmod +x phpunit.phar\n    sudo mv phpunit.phar /usr/local/bin/phpunit\n    \n## Testの実行\n    vendor/bin/phpunit  ファイル名\n\n## Testファイルの記述方法\nファイル名：ExampleTest\n\n## テストメソッドの記述方法\n最初にtestをつけたメソッド名にするか、\nアノテーションに@testをつけるようにする\n\n例：`public function testテストの内容`\n\n例：\n`\n/*@test*/\npublic function テストの内容\n`\n",
+      "FolderKey": "cd051b303ab75af11b7158c29230189e8f220714",
+      "tags": [],
+      "updatedAt": "2016-03-08T08:03:16.383Z",
+      "key": "e00b1097e745e9e4a792ffc94ec2c69d5945ed40",
+      "createdAt": "2016-02-27T13:58:01.199Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "Composer",
+      "content": "## Composer本体(composer.phar)のインストール\n    curl -sS https://getcomposer.org/installer | php\n\n## Composer.phar を移動させてグローバルにコマンドを実行出来るようにする\n    mv composer.phar /usr/local/bin/composer\n    \n## パッケージ管理ファイルの記述\ncomposer.json ファイルに必要なパッケージを記述\n\n## パッケージのインストール\n    php composer.phar install  (./composer.phar install)\n\nオートロードファイル *autoload.php*\t も同時に作成する\n\n## オートロードファイルの読み込み\n読み込む対象のファイルに\n`require __DIR__ . '/vendor/autoload.php';`\n\n",
+      "FolderKey": "cd051b303ab75af11b7158c29230189e8f220714",
+      "tags": [],
+      "updatedAt": "2016-03-08T08:01:53.776Z",
+      "key": "155931452f89e5285bd51279a2e1747a4fb8b5d5",
+      "createdAt": "2016-02-27T13:56:03.997Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "CakePHP",
+      "content": "\n## Model \n    $this->_table; // モデルの情報を取得できる\n    \n## Entity\n    $entity->getOriginal()) // 更新前のレコード情報\n    $entity->extractOriginal($entity->visibleProperties()) // 更新後のレコード情報\n    $entity->extractOriginalChange($entity->visibleProperties()) // 更新語に変更されたカラム情報のみを抽出\n    \n    \n    \n## Validation\n - [動的バリデーション](http://api.cakephp.org/3.0/class-Cake.Validation.Validator.html)",
+      "FolderKey": "cd051b303ab75af11b7158c29230189e8f220714",
+      "tags": [],
+      "updatedAt": "2016-03-08T02:50:43.061Z",
+      "key": "ff3b25308cb1865bc099fcfe3a0f061e6be89e52",
+      "createdAt": "2016-03-07T07:46:34.627Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "基本",
+      "content": "```\n// Swift Lesson\n\"hoge\"\nprint(\"hello world\")\n\n//var msg: String\n//msg = \"hello world\"\n\nvar msg = \"hello world\"\nlet s = \"hoge\" //定数\n\nprint(\"msg: \\(msg), s: \\(s)\")\n\n// conversion　データ型変換\nlet a = \"hkt\"\nlet b = 48\nlet c = a + String(b)\n\n/****** タプル  *******/\n\n//let error = (404, \"not found\")\n//error.0\n//error.1\n\n//let error = (code:404, msg:\"not found\")\n//error.code\n//error.msg\n\nlet error = (404, \"not found\")\n//let (code, msg) = error\nlet (code, _) = error\n\ncode\n// msg\n\n\n/****** 配列 *******/\n\nvar colors: [String] = [\"blue\", \"pink\"]\ncolors[1] = \"red\"\n\ncolors.count\ncolors.isEmpty\n\ncolors.append(\"green\")\ncolors.insert(\"gray\", atIndex: 1)\ncolors\n\nlet secondColor = colors.removeAtIndex(1)\nsecondColor\ncolors.removeLast()\ncolors\n\n// 空配列作成\nvar emptyArray = [String]()\n\n\n/****** 辞書  key: value *******/\n\nvar users: [String: Int] = [\n    \"taguchi\": 500,\n    \"fkoji\": 800\n]\nusers[\"taguchi\"]\n\nusers[\"dotinstall\"] = 900\n\nusers.removeValueForKey(\"dotinstall\")\nusers\n\n//users[\"fkoji\"] = 900\nusers.updateValue(900, forKey: \"fkoji\")\n\nlet keys = Array(users.keys)\nlet values = Array(users.values)\n\nvar emptyDictionary = [String: Int]()\n\n\n/******* if *******/\n\nlet score = 62\nvar result = \"\"\n\nif score > 80 {\n    result = \"Great\"\n} else if score > 60 {\n    result = \"Good\"\n} else {\n    result = \"so so ...\"\n}\n\n/******* 三項演算子 *******/\n\nresult = score > 80 ? \"Great\" : \"so so...\"\n\n\n// switch\n// break は処理を実行しない\n// fallthrough 下の処理も実行する\n\nlet num = 0\n\nswitch num {\ncase 0:\n    print(\"zero\")\n    fallthrough\ncase 1, 2, 3:\n    print(\"small\")\ncase 4...6: // 4, 5, 6\n    print(\"4/5/6\")\ncase 7..<9: // 7, 8\n    print(\"7/8\")\ncase let n where n > 10:\n    print(\"huge\")\ndefault:\n    // println(\"n.a.\")\n    break\n}\n\n/******* for *******/\n\n//for var i = 0; i < 10; i++ {\n//    if i == 3 {\n////        continue\n//        break\n//    }\n//    println(i)\n//}\n\n//for i in 0...9 {\n//    println(i)\n//}\n\n//let a = [5, 3, 19]\n//for i in a {\n//    println(i)\n//}\n\nlet d = [\"taguchi\": 500, \"fkoji\": 800]\nfor (k, v) in d {\n    print(\"key:\\(k) val:\\(v)\")\n}\n\n/***** Optional(nilを許可する宣言) *****/\n\n//var s: String?\n//s = nil\n\nlet name: String? = \"taguchi\"\n//let msg = \"hello \" + name!\n\n//if name != nil {\n//    let msg = \"hello \" + name!\n//}\n\nif let s = name {\n    let msg = \"hello \" + s\n}\n\nvar label: String!\nlabel = \"score\"\nprint(label)\n\n\n/***** 関数 *****/\n\n//func sayHi(name: String) {\n//    println(\"Hi \" + name)\n//}\n//sayHi(\"Tom\")\n\nfunc sayHi(myname name: String) {\n    print(\"Hi \" + name)\n}\nsayHi(myname: \"Tom\")\n\n//func sayHi(#name: String = \"Tom\") {\n//    print(\"Hi \" + name)\n//}\n\n//sayHi(name: \"Bob\")\n\n\nfunc sum(su1: Int, su2: Int) -> Int {\n    return su1 + su2\n}\nprint(sum(5, su2: 12))\n\n//func swap(a:Int, b:Int) -> (Int, Int) {\n//    return (b, a)\n//}\n//print(swap(5, b: 2))\n\n//func f(var a:Int) {\n//    a = 20\n//}\n//var a = 5\n//f(a)\n//a\n\n// グローバル変数の値を関数によって変更する場合\nfunc f(inout test:Int) {\n    test = 20\n}\nvar test = 5\nf(&test)\ntest\n\n\n/****** 列挙型 ******/\n//データ型を自作する\n\n//あるデータ型を割り当てたい場合\n//以降のcase文が出るたびに1ずつ増加\n\nenum Result: Int {\n    case Success = 0\n    case Error\n    func getMessage() -> String {\n        switch self {\n        case .Success:\n            return \"OK\"\n        case .Error:\n            return \"NG\"\n        }\n    }\n}\n\nvar r: Result\n\n//r = Result.Success\nr = .Success\n\nResult.Error.rawValue\n\nResult.Error.getMessage()\n\n\n/*** クラス (User) → インスタンス (tom, bob) ***/\n\n// プロトコル\nprotocol Student {\n    var studentId: String { get set }\n    func study()\n}\n\nclass User: Student {\n    var name: String\n    var score: Int = 0\n    var studentId: String = \"hoge\"\n    func study() {\n        print(\"studying...\")\n    }\n    \n    var level: Int {\n        return Int(score / 10) // getのみの場合省略可能\n        //        get {\n        //            return Int(score / 10)\n        //        }\n        //        set {\n        //            score = Int(newValue * 10)\n        //        }\n    }\n    \n    init(name: String) {\n        self.name = name\n    }\n    // final func upgrade → finalをつけることでoverrideを禁止する\n    func upgrade() {\n        score++\n    }\n}\n\n// クラスの継承\nclass AdminUser: User {\n    func reset() {\n        score = 0\n    }\n    // 継承したクラス内のメソッドを上書き(override)\n    override func upgrade() {\n        super.upgrade() // 親クラスのメソッドの呼び出し\n        score += 3\n    }\n}\nvar tom = User(name: \"Tom\")\ntom.name\ntom.score\ntom.upgrade()\ntom.score\n\nvar bob = AdminUser(name: \"Bob\")\nbob.upgrade()\nbob.score\nbob.reset()\nbob.score\n\n\n/***** optional chaining *****/\n// ? をつけることによってnilかどうかを評価する\n\nclass User2 {\n    var blog: Blog?\n}\n\nclass Blog {\n    var title = \"My Blog\"\n}\n\nvar lee = User2()\nlee.blog = Blog()\n// lee.blog?.title\n\nif let t = lee.blog?.title {\n    print(t)\n}\n\n\n/***** type casting *****/\n// [親クラス名] グループ化しているクラス\n// [AnyObject] 継承関係のないクラスも含める\n// is クラスの型チェック\n// as クラスの型変換(ダウンキャスト)\n\nclass User3 {\n    var name: String\n    init(name: String) {\n        self.name = name\n    }\n}\nclass AdminUser2: User3 {}\nclass SomeUser {}\n\nlet keigo = User3(name: \"Tom\")\nlet koki = AdminUser2(name: \"Bob\")\nlet syunpe = SomeUser()\n\n//let usersList: [User3] = [keigo, koki]\nlet usersList: [AnyObject] = [keigo, koki, syunpe]\n\nfor user in usersList {\n    //    if user is AdminUser2 {\n    //        let u = user as AdminUser2\n    //        println(u.name)\n    //    }\n    if let u = user as? AdminUser2 {\n        print(u.name)\n    }\n}\n\n/***** 構造体 *****/\n\nstruct UserStruct {\n    var name: String\n    var score: Int = 0\n    init(name: String) {\n        self.name = name\n    }\n    mutating func upgrade() {\n        score++\n    }\n}\n\n// クラスの場合では、同じ値を参照している為、値が書きかわる\n//var tom = User(name: \"Tom\")\n//var tom2 = tom\n//tom2.name = \"tom2\"\n//tom.name\n\n// 構造体の場合では、コピーしているだけなので、値は変わらない\nvar Bob = UserStruct(name: \"Bob\")\nvar Bob2 = Bob\nBob2.name = \"Bob2\"\nBob.name\n\n\n/***** データ型の機能拡張 *****/\n\nextension String {\n    var size: Int {\n        return self.characters.count\n    }\n    func dummy() -> String {\n        return \"dummy\"\n    }\n}\n\nvar str: String = \"hoge222\"\nstr.size\nstr.dummy()\n\n\n/***** ジェネリクス *****/\n// データ型の変換を柔軟に変更する\n\n//func getIntArray(item: Int, count: Int) -> [Int] {\n//    var result = [Int]()\n//    for _ in 0..<count {\n//        result.append(item)\n//    }\n//    return result\n//}\n\n// <T>でなくても良い: <data>\nfunc getArray<T>(item: T, count: Int) -> [T] {\n    var result = [T]()\n    for _ in 0..<count {\n        result.append(item)\n    }\n    return result\n}\n\ngetArray(8, count: 3)\ngetArray(\"hello\", count: 3)\ngetArray(2.3, count: 4)\n```",
+      "FolderKey": "2d62fc3971da99002d399e0c6de7acd112265317",
+      "tags": [],
+      "updatedAt": "2016-02-27T14:26:14.060Z",
+      "key": "b100eaf14635af90553a028e370536bcb897f673",
+      "createdAt": "2016-02-27T14:25:36.048Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "About Boost",
+      "tags": [
+        "boost",
+        "intro"
+      ],
+      "content": "Boost is a brand new note App for programmers.\n\n> 下に日本語版があります。\n\n# ◎feature\n\nBoost has some preponderant functions for efficient engineer's task.See some part of it.\n\n1. classify information by「Folders」\n2. deal with great variety of syntax\n3. Finder function\n\n＊　＊　＊　＊\n\n# 1. classify information by 「Folders」- access the information you needed easily.\n\n「Folders」 which on the left side bar. Press plus button now. flexible way of classification.\n- Create Folder every language or flamework\n- Make Folder for your own casual memos\n\n# 2. Deal with a great variety of syntax – instead of your brain\nSave handy all information related with programming\n- Use markdown and gather api specification\n- Well using module and snippet\n\nSave them on Boost, you don't need to rewrite or re-search same code again.\n\n# 3. Load Finder function – now you don't need to spell command by hand typing.\n\n**Shift +cmd+tab** press buttons at same time.\nThen, the window will show up for search Boost contents that instant.\n\nUsing cursor key to chose, press enter, cmd+v to paste and… please check it out by your own eye.\n\n- Such command spl or linux which programmers often use but troublesome to hand type\n\n- (Phrases commonly used for e-mail or customer support)\n\nWe support preponderant efficiency\n\n＊　＊　＊　＊\n\n## ◎for more information\nFrequently updated with this blog ( http://blog-jp.b00st.io )\n\nHave wonderful programmer life!\n\n## Hack your memory**\n\n\n\n# 日本語版\n\n**Boost**は全く新しいエンジニアライクのノートアプリです。\n\n# ◎特徴\nBoostはエンジニアの仕事を圧倒的に効率化するいくつかの機能を備えています。\nその一部をご紹介します。\n1. Folderで情報を分類\n2. 豊富なsyantaxに対応\n3. Finder機能\n4. チーム機能（リアルタイム搭載）\n\n＊　＊　＊　＊\n\n# 1. Folderで情報を分類、欲しい情報にすぐアクセス。\n左側のバーに存在する「Folders」。\n今すぐプラスボタンを押しましょう。\n分類の仕方も自由自在です。\n- 言語やフレームワークごとにFolderを作成\n- 自分用のカジュアルなメモをまとめる場としてFolderを作成\n\n\n# 2. 豊富なsyntaxに対応、自分の脳の代わりに。\nプログラミングに関する情報を全て、手軽に保存しましょう。\n- mdで、apiの仕様をまとめる\n- よく使うモジュールやスニペット\n\nBoostに保存しておくことで、何度も同じコードを書いたり調べたりする必要がなくなります。\n\n# 3. Finder機能を搭載、もうコマンドを手打ちする必要はありません。\n**「shift+cmd+tab」** を同時に押してみてください。\nここでは、一瞬でBoostの中身を検索するウィンドウを表示させることができます。\n\n矢印キーで選択、Enterを押し、cmd+vでペーストすると…続きはご自身の目でお確かめください。\n- sqlやlinux等の、よく使うが手打ちが面倒なコマンド\n- （メールやカスタマーサポート等でよく使うフレーズ）\n\n私たちは、圧倒的な効率性を支援します。\n＊　＊　＊　＊\n\n\n## ◎詳しくは\nこちらのブログ( http://blog-jp.b00st.io )にて随時更新しています。\n\nそれでは素晴らしいエンジニアライフを！\n\n## Hack your memory＊＊",
+      "mode": "markdown",
+      "key": "61af30d6b88e7785f7777e5f65c3ed916eb446be",
+      "FolderKey": "7cc4ee61c211092e218bd7981921d32a64c82f80"
+    },
+    {
+      "title": "ShellScirpt",
+      "content": "#!/usr/local/bin/zsh\n\n# 変数はスペースを入れず宣言する\ns=\"hello\"\n\necho \"$s shell script\"\n\nx=10\necho $x+2 #10+2\n \n# expr 計算する\n# バッククオートで囲んだ内容を計算する\n# 特殊な記号に関してはエスケープする必要があり、前後に空白を入れる必要がある\necho `expr $x + 2`\necho `expr $x \\* 2`\necho `expr \\( $x + 5 \\) \\* 2`\n\n# 変数の書き込みを制御する\nreadonly FILE_NAME=\"hello.sh\"\n\n# 配列\n \na=(2 4 6)\n \necho $a # 配列のすべての値を出力する\necho $a[2] # 添字は1から数える\necho ${a[@]} echo ${#a[@]} # 要素数を数える\n\na[2]=10\necho ${a[@]}\n \na+=(20 30)  # 配列に要素の追加\necho ${a[@]}\n \nd=(`date`) # unixのdateコマンドを代入\necho $d[3] # 日にちが出力される\n\n\n# 条件式の評価\n# 正常終了(0)\n\n# 数値の評価\n# $? → test関数が正常に処理したかどうかの値が入る\ntest 1 -eq 1; echo $?\n\n# eq → = \n# ne → !=\n# gt → > \n# ge → >=\n# lt → <\n# le → <=\n\n\n# 文字列の評価\n\n# =, !=\n# ファイルの比較\n# -nt (newer than)\n# -ot (older than)\n# -e (empty)\n# -d (directory)\n\ntest -e hello.sh; echo $?\n\n# 論理演算子\n# -a (and)\n# -o (or)\n# ! (not)\n\n# [] → test\nx=70\nif [ $x -gt 60 ]; then\n  echo \"ok!\"\nelif [ $x -gt 40 ]; then\n  echo \"soso..\"\nelse\n  echo \"NG\"\nfi\n\n# case文\n\n# * → 何も当てはまらない場合 \nsignal=\"red\"\ncase $signal in\n  \"red\")\n    echo \"stop!\"\n    ;;\n  \"yellow\")\n    echo \"caution!\"\n    ;;\n  \"green\")\n    echo \"go!\"\n    ;;\n  *)\n    echo \"...\"\n    ;;\nesac\n\n\n# while\n \ni=0\n# while [ $i -lt 10 ]\nwhile :\ndo\n  i=`expr $i + 1`\n \n  if [ $i -eq 3 ]; then\n    continue\n  fi\n \n  if [ $i -gt 10 ]; then\n    break\n  fi\n \n  echo $i\ndone\n\n# for\n \na=(1 2 3 4 5)\n \n# for i in 1 2 3 4 5\n# for i in $a\n \nfor i in `seq 1 100`\ndo\n  echo $i\ndone\n\n# 引数\n\necho $0 \necho $1\necho $2\n# echo ${10}\n \necho $@ # 全ての引数\necho $# # 引数の数(実行プログラムは含めない)\n\n\n# read ユーザの入力を受け付ける\n \nwhile :\ndo\n  read key\n  echo \"you pressed $key\"\n  if [ $key = \"end\" ]; then\n    break\n  fi\ndone\n\n# select ユーザにオプションを選ばせて実行させる \n# 例：1) CODE\n#     2) DIE \n\nselect option in CODE DIE\ndo\n  echo \"you pressed $option\"\n  break;\ndone\n\n\n# ファイルから1行ずつ読み込んで実行する\n# $1 には引数で指定したファイル\n# line はファイルから読み込んだ行\n\ni=1\nwhile read line\ndo\n  echo \"$i: $line\"\n  i=`expr $i + 1`\ndone <$1\n\n\n# 関数\n\n# function hello() でも可\n# $1, $2は引数\n\nhello() {\n  echo \"hello $1 and $2\"\n  local i=5 # グローバルで利用しない場合はlocalを宣言する\n  echo $i\n}\n \nhello Mike Tom\necho $i # 関数の中だけでなく利用できる\n\n\nexit 0\n",
+      "FolderKey": "1eda03a1c8ef260340baf87c03c00178910d6f9a",
+      "tags": [],
+      "updatedAt": "2016-02-27T14:21:24.083Z",
+      "key": "2574ce04dc9048fe2415a8fd346550a7327e48c5",
+      "createdAt": "2016-02-27T14:20:46.594Z",
+      "mode": "sh",
+      "id": null
+    },
+    {
+      "id": null,
+      "key": "080bc34af227ed2bd7a79a34afa96c2eed4f19e1",
+      "title": "Itamae",
+      "content": "# Itamae (ドットインストール)\n - Rubyで記述する\n\n## Command Examples\nItamae ssh -h hostName ファイル名(実行)\nItamae ssh -h hostName ファイル名 -n (テスト)\n\n## Source Examples\n\n```ruby\n# resource 'name' do\n#  attribute value\n#  attribute value\n#  attribute value\n# end\n\n\n# Packageのインストール\n\npackage 'tree' do\n  action :install\n  user 'root'\nend\n\n\n# package 'httpd' do\n#  action :install\n# end\n\n# action :install はデフォルトなので省略化\n# action :enable は自動起動\n\npackage 'httpd'\n\n# service 'httpd' do\n#   action :start\n# end\n#\n# service 'httpd' do\n#   action :enable\n# end\n\nservice 'httpd' do\n  action [:start, :enable]\n# subscribes :reload, 'remote_file[/etc/php.ini]'\nend\n\n# each文でのインストール\n%w(php php-devel php-mbstring php-gd).each do |pkg|\n  package pkg\nend\n \nremote_file '/etc/php.ini' do\n  # source 'files/php.ini'\n  mode '644'\n  owner 'root'\n  group 'root'\n  notifies :reload, 'service[httpd]'\nend\n \nremote_file '/var/www/html/index.php'\n\n# subscribes -> 指定したファイルが変更されたらアクションを実行\n# notifies   -> 記述したアクションが実行されたら、指定したアクションを実行\n# 上記例：notifies :reload, 'service[httpd]' php.iniのアクションが実行されたら、apacheを再起動\n\n\n# only_if コマンド : コマンドが成功した場合に実行\n# not_if コマンド : コマンドが失敗した場合に実行\n# execute 指定したコマンドをそのまま実行可能\n \nexecute 'create a file' do\n  # action :run\n  command 'echo hello > /home/vagrant/hello.txt'\n  user 'vagrant'\n  not_if 'test -e /home/vagrant/hello.txt'\nend\n\n\nfile '/home/vagrant/hello.txt' do\n  action :edit\n  block do |content|\n    content.gsub!('hello', 'hello world')\n  end\n  only_if 'test -e /home/vagrant/hello.txt'\nend\n\n\n# define resource_name  (新しいresourceの生成)\n# [:name] には resource_nameを指定した後の文字列が入る(下記の場合'httpd')\n\ndefine :install_start_enable_package do\n  package params[:name]\n  service params[:name] do\n    action [:start, :enable]\n  end\nend\n \ninstall_start_enable_package 'httpd'\n\n\n# 他のファイルの読み込み\ninclude_recipe './package_recipe.rb'\ninclude_recipe './service_recipe.rb'\n\n\n# Templateの利用\n\ntemplate '/var/www/html/index.html' do\n  # action :create\n  # source 'templates/index.html.erb'\n  owner 'apache'\n  group 'apache'\n  variables(msg: 'shhh....')\nend\n\n```",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "98a8894132465e155db52c45743c95c9f0fa8732",
+      "updatedAt": "2016-02-27T14:19:08.416Z",
+      "createdAt": "2016-02-27T14:19:08.416Z"
+    },
+    {
+      "title": "基本コマンド",
+      "content": "\n## 直前のコミットを上書き\n    git commit --amend\n\n## 今いるブランチの名前を変えたいとき\n    git branch -m [変更後の名前]\n\n## ブランチの削除\n    git branch -d ブランチ名\n\n## 他のブランチを明示的に指定するとき\n    git branch -m [変更したいブランチの名前] [変更後の名前]\n\n### リモートブランチを削除 ###\n## ブランチ名に`:`をつけてpush\n    git push origin :[ブランチ名]\n\n## リモートブランチをローカルへ取得する\n    git branch new-branch origin/new-branch\n\n## リモートブランチをローカルへ取得してブランチを変更する\n    git checkout -b new-branch origin/new-branch\n\n# 特定のファイルのみ戻す\n - `git log ファイルのバス` コミットログのハッシュ値取得\n - `git checkout ハッシュ値 ファイルパス`\n\n\n## ブランチを作成するのを忘れて作業してて、masterを編集してしまった。\n## 途中からブランチを作成して、そこで作業を再開する方法。\n## 現在のワークツリーを一時的に保存する\n    git stash\n\n## stashに保存されている状態のリストを確認\n    git stash list\n    stash@{0}: WIP on master: 0f043fe Finish layout and routes\n\n## ブランチ(working)を作成する\n    git branch working\n    git checkout working\n\n## 保存した状態(stash@{0})を現在のブランチに適用する（実行後に適用した状態は削除される）\n    git stash pop\n\n## 削除したくない場合は\n    git stash apply\n\n## commit していない状態でmasterに変更ファイルがある場合\n    git checkout -b working\n\n## 特定ファイルの任意のコミット間の差分\n    git diff <commit>..<commit> filepath\n\n## コミットしていないファイルの差分\n    git diff HEAD^..HEAD filepath\n\n## 変更履歴の確認\n    git log -p filepath\n\n## addする前に戻す\n    git reset HEAD\n\n## コミットをaddした段階に戻す\n    git reset --soft HEAD~1\n\n## コミットをaddする前に戻す\n    git reset --hard HEAD~1\n\n## 特定ファイルのコミットをaddした段階に戻す\n    git reset HEAD ファイルパス\n\n## 特定ファイルをworking directoryから戻す\n    git checkout -- ファイルパス",
+      "FolderKey": "be62800274db957294fb544d2e184f0b8521e6bf",
+      "tags": [],
+      "updatedAt": "2016-02-27T14:16:46.217Z",
+      "key": "dbbe3086c2eb8209008057a5443ef3e318f2a5de",
+      "createdAt": "2016-02-27T14:13:08.149Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "Rails",
+      "content": "\n## コマンド\n\n  `rails new プロジェクト名` Railsで必要なパッケージ郡を取得したり、railsの初期化を行う\n\n### ルートを確認する\n    rake routes\n\n### モデルを作成する\n    rails generate model モデル名(単数形の最初大文字) テーブルのカラム名 string\n - rails g model モデル名 カラム名\n - 例：rails g model Project title\n\n### カラムを追加する\n    rails generate migration AddxxxToyyy\n - カラム名:データ型　(xxxには追加するカラム名（なんでもいい）yyyには追加するテーブル名)\n - 例： rails generate migration AddDetailsToUsers  userpassword:string\n\n### カラムを削除する\n\n### カラムの追加・削除を反映する\n - `rake db:migrate` 作成したモデルの情報をDBに反映する\n - `rake routes` URIを確認する\n - `rails db` 現在使用しているDBにアクセスする\n - `rails console` インタラクティブにDBを操作する\n - `rails g controller Projects(複数形の最初大文字)`\n\n\n",
+      "FolderKey": "7f49151f505767cfa11cc7cbe086a71cec3ef714",
+      "tags": [],
+      "updatedAt": "2016-02-27T14:11:57.203Z",
+      "key": "bf342302bcefe3b1001f9e589ab849f0f02ce968",
+      "createdAt": "2016-02-27T14:11:03.610Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "Ruby開発に関して",
+      "content": "\n> rbenv RVM(Ruby Version Manager) Rubyパージョン管理ツール\n\n## コマンド\n\n - `rbenv install --list` インストールすることができるパージョンリストの表示\n\n - `rbenv install -v パージョン指定` バージョン指定した内容をインストール\n\n - `rbenv versions` インストールされているrubyの情報表示\n\n - `rbenv global バージョン指定` バージョン指定した内容を設定する\n\n\n> Bundler パッケージ管理ツール\n\nRailsアプリケーションに必要となるGemパッケージの種類やバージョンを管理し、\n複数のPCで必要なGemパッケージをインストールする仕組みを提供する\ngem でのインストールをより容易にプロジェクトごとにパッケージ管理をすることができる\n\n## コマンド ※ Gemfileがあるディレクトリにおいて実行\n\n - `bundle list` Gemfile にあるパッケージを表示\n - `bundle init` Gemfile のひな形を作成する\n - Gemfile内にパッケージを追加する\n - `bundle install` Gemfile にあるパッケージをインストール（初期のみ）\n - `bundle install --path vendor/bundle` パスを指定してインストール（指定しない場合、グローバルにインストールされてしまう）\n\n - `bundle install --path vendor/bundle` プロジェクトごとのGem管理になる（パスを指定しない場合、rubyのシステム側にインストールされる）\n - `bundle update` Gemfile にあるパッケージを更新する\n - `bundle clean` Gemfile にある使われなくなったパッケージを削除する\n - `bundle exec ~` Gemfile内のパッケージを利用して実行する（グローバル領域のgemパッケージは利用しない）\n\n\n> ActiveRecord    ORマッパー\n\n   Object と RDB をマッピングして、特に SQL などを意識せずにデータベースを Ruby のオブジェクトっぽく扱うことができるもの\n\n## 記述方法\n\n記述における規則\n  1.  ActiveRecordに記述する方のテーブル名は複数に設定する　→　(user -> users)\n  2.  idを必ず設定する(テーブル内に*created_at、updated_at*を入れると自動挿入される)\n  3.  ActiveRecordを利用するファイルでは require 'active_record'を記述する\n\n*詳細な記述方法についてはActiveRecord.rbを参照*\n",
+      "FolderKey": "7f49151f505767cfa11cc7cbe086a71cec3ef714",
+      "tags": [],
+      "updatedAt": "2016-02-27T14:08:54.069Z",
+      "key": "5fe8ea6024cf3a357a1a007614b307464e46c1f6",
+      "createdAt": "2016-02-27T14:01:04.155Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "id": null,
+      "key": "d1e1d4f9e114966c133ee15fc67c8e69a1a982bc",
+      "title": "Dbup",
+      "content": "\n## Dbupをダウンロードする\n    $ wget https://github.com/brtriver/dbup/raw/master/dbup.phar\n\n## Dbupをインストールする\n    $ php dbup.phar init\n\n## DB環境を設定する\n    dbup/properties.iniに環境を設定する\n\n## マイグレーションファイルを記述する\n    V[バージョン番号]__[名前].sql\n\n## Dbupを実行する\n    $ php dbup.phar up\n\n",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "cd051b303ab75af11b7158c29230189e8f220714",
+      "updatedAt": "2016-02-27T13:59:59.642Z",
+      "createdAt": "2016-02-27T13:59:59.642Z"
+    },
+    {
+      "id": null,
+      "key": "fe3dfbfb0fdcf38216a5942f819676d500f7dde4",
+      "title": "SQLite",
+      "content": "\nSQLiteではファイル名がデータベース名となる\n\n## SQLのコマンド\n\n  create table　テーブル名 （カラム1、カラム2）　　　　→　　テーブルの作成\t\n  drop table テーブル名\t\t\t\t\t\t　　　→　　テーブルの削除\n  alter table テーブル名 rename to 新しいテーブル名　→　　テーブル名の変更\n  alter table テーブル名 add column カラム名       →　　カラムの追加\n  \n  create table index インデックス名 on テーブル名 （カラム名）\n  create table uniqueindex インデックス名 on テーブル名 （カラム名）\n\n  select current_time;　→　現在時刻\n  select current_date;　→　現在日付\n  select current_timestamp;　→　現在のタイムスタンプ表示\n  select strftime('%Y年', current_timestamp); →　フォーマットを指定して表示\n  select ROWID * from テーブル名　→　連番でデータを管理している内容を表示する\n\n\n## テーブル作成時のオプション\n  primary key,\n  unique,\n  autoincrement,\n  not null,\n  check(カラム名 > 0) 入ってくるデータに対するチェック機能\n\n## その他のオプション\n  random() 　→　ランダムに表示\n  typeof(カラム名) →　型を表示して抽出\n\n\n\n\n## SQLiteのコマンド\n\n  sqlite3 ファイル名.sqlite3  (拡張子もなんでもいいけどわかりやすくする) →　SQLiteに入る\n  .tables　→　テーブルの一覧\n  .schema　→　テーブルの一覧とテーブル情報\n  .schema テーブル名　→　指定したテーブル情報\n  .show →　現在のSQLiteの設定を確認\n      .showにあるオプションを変更する方法\n      例：.separate |   →　　.separate ,\n\n  .import  データを入れるファイル  テーブル名\n  .header on or off 　→　抽出結果に対してカラム名を含める\n  .dump テーブル名　→　テーブルのバックアップを取る\n     .showにある.outputがstdoutの場合は画面に出力なので、ファイル名に変更する\n\n  .read ファイル名　→　ファイルからデータを読み込む\n\n**外部ファイルを取り込む方法**\n\n外部ファイルの区切り文字を指定する\n（デフォルトでは　|　になっている）\n\n",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "49cde2d06a158c8921a7f0ee2bc4f67c4c0af924",
+      "updatedAt": "2016-02-27T13:54:00.033Z",
+      "createdAt": "2016-02-27T13:54:00.033Z"
+    },
+    {
+      "id": null,
+      "key": "0ea44358ac15b89040657ea3ac80fcaf805a73b9",
+      "title": "ActiveRecord",
+      "content": "\nrequire 'active_record'\nrequire 'logger' # SQLの詳細な情報を出力\n\n\n#DBの設定記述\nActiveRecord::Base.estabrish_connection(\n\t\"adapter\" => 'sqlite3',\n\t\"database\" => 'データベース名'\n)\n\n# 標準出力\nActiveRecord::Base.logger = logger.new(STDOUT)\n\n# クラス名は最初が大文字のテーブル名\nclass User < ActiveRecord::Base\n\tscope :top3, order(age).limit(3)\n\n\tvalidates :name, :presense => true\n\tvalidates :age, :length => {:minimum => 5}\n\n\thas_many :test, :dependent => :destroy\nend\n\n\nclass Test < ActiveRecord:Base\n\tbelongs_to :user\nend\n\n# レコードの挿入方法\n\n# インスタンス化も一気にする\n#user = User.new(:name = \"keigo\", :email = \"nkws@gmail\")\n\nuser = User.new\nuser.name = 'keigo'\nuser.email = 'nkws@gmail.com'\n\nuser = User.new do |u|\n\tu.name = 'keigo'\n\tu.email = 'nkws@gmail.com'\nend\n\n# DBへの格納\nuser.save \n\n\n# レコードの挿入とSaveを同時に行う\nUser.create(:name = 'keigo', :email = 'nkws@gmail')\n\n\n# テーブルデータの抽出方法\n\n# データを全て抽出\np User.all\n\n# 最初 / 最後のレコードのみ抽出\np User.first\np User.last\n\np User.first.name #カラムを指定して\n\n# find は基本的に主キーを指定する\np User.find(3)\n\n# カラム情報を与えて抽出\np User.find_by_name('keigo')\n\np User.find_by_name_and_id('keigo', 2)\n\n\n# where\n\np User.where(:name => 'keigo', :id => 1)\n\np User.where(\":name = ? and :id = ?\", 'keigo, 1')\n\np User.where(\"name = :name and id = :id\", ':name => keigo, :id => 1')\n\np User.where(\"id > ?\", 2)\n\np User.where(\"name like ?\", \"kei%\")\n\n\n# whereのオプション\n\n# 範囲指定\np User.where(:id => 1..3) # 1 ~ 3\n\np User.where(:id => [1, 3]) # 1 と 3\n\n# order と limit\np User.order(\"id desk\").limit(3)\n\n\n# scope 自作メソッドの利用（クラス内で記述しておく）\np User.top3\n\n\n#　抽出結果が無い場合に新規作成する\nUser.where(:name => 'keigo2').first_or_create\n\n# 新規作成する際にemailも指定して挿入する\nUser.where(:name => 'keigo3').first_or_create do |u|\n\tu.email = 'nkws2@gmail.com'\nend\n\n\n# レコードの更新方法(単体)\nUser.update_attribute(:name, 'new_keigo')\n\n# レコードの更新方法(複数)\nUser.update_attributes(:name => 'new_keigo', :email => 'new@gmail.com')\n\n\n# 複数のレコードの更新方法\nUser.where(:id => 1..2).update_all(:name => 'new_keigo', :email => 'new@gmail.com')\n\n\n# レコードの削除方法\n\n# delete (レコードの削除)\nUser.where(:id => 1).delete()\nUser.where(:id => 1..2).delete_all()\n\n# destroy (オブジェクトの削除)アソシエーションなどで関連データも一緒に削除する\nUser.find(3).destroy\nUser.find(3).destroy_all\n\n\n\n# バリデーション (クラスに記述)\n# バリデーションに引っかかるものはsaveを行わない\n# save! にするとエラーを出す\n\n\nif !user.save\n\tp user.errors.messages\nend\n\n\n# アソシエーション (クラスに記述)\n\nuser.test.each do |test|\n\tp test.english\nend\n\n# 関連データの削除 (クラスで指定)\n\n",
+      "mode": "ruby",
+      "tags": [],
+      "FolderKey": "7f49151f505767cfa11cc7cbe086a71cec3ef714",
+      "updatedAt": "2016-02-27T13:52:08.528Z",
+      "createdAt": "2016-02-27T13:52:08.528Z"
+    },
+    {
+      "title": "Backbone.js",
+      "content": "\n(function() {\n\n// Model\n\nvar Task = Backbone.Model.extend({\n    defaults: {\n        title: \"do something!\",\n        completed: false\n    },  \n    validate: function(attrs) {\n        if ( _.isEmpty(attrs.title) ) { \n            return 'title must not be empty';\n        }   \n    },  \n    initialize: function() {\n        this.model.on('destroy', this.remove, this);\n        this.model.on('change', this.render, this);\n        this.on('invalid', function(model, error) {\n            $('#error').html(error);\n        })  \n    },  \n    events: {\n        'click .delete': 'destroy'\n        'click .toggle': 'toggle'\n    },  \n    toggle: function() {\n        this.model.set('completed', !this.model.get('completed'));\n    },  \n    destroy: function() {\n        if (confirm('are you sure?')) {\n            this.model.destroy();\n        }   \n    },  \n    remove: function() {\n        this.$el.remove();\n    },  \n    validate: function (attrs) {\n      if ( _.isEmpty(attrs.title)) {\n        return 'title must not be empty!';\n      }   \n    },  \n    toggle: function () {\n        this.set('completed', !this.get('completed'));\n    }\n}); \n\nvar task1 = new Task({\n    completed: true\n});\n\n// setterとgetter\ntask1.set('title', 'setter');\nvat title = task1.get('title');\n\nconsole.log(task1.toJSON());\ntask1.toggle();\ntask1.set({title: ''}, {validate: true});\nconsole.log(task1.toJSON());\n\n// View\n\nvar TaskView = Backbone.View.extend({\n    tagName: 'li',\n    // className: 'liClass',\n    // id: 'liId'    \n    template: _.template( $('#task-template').html() ),\n    render: function() {\n        var template = this.template( this.model.toJSON() );\n        this.$el.html(template);\n        return this;\n    },\n    events: {\n      \"click #liId\": \"sayHello\"\n    },\n    sayHello: function () {\n      alert('hello');\n    }\n});\nvar taskView = new TaskView({ model: task });\nconsole.log(taskView.render().el);\n$('body').append(taskView.render().el);\n\n\n// Collection\n\nvar Tasks = Backbone.Collection.extend({\n    model: Task\n});\n\nvar TasksView = Backbone.View.extend({\n    tagName: 'ul',\n    initialize: function() {\n        this.collection.on('add', this.addNew, this);\n    },\n    addNew: function(task) {\n        var taskView = new TaskView({model: task});\n        this.$el.append(taskView.render().el);\n    },\n    render: function() {\n        this.collection.each(function(task) {\n            var taskView = new TaskView({model: task});\n            this.$el.append(taskView.render().el);\n        }, this);\n        return this;\n    }\n});\n\nvar AddTaskView = Backbone.View.extend({\n    el: '#addTask',\n    events: {\n        'submit': 'submit'\n    },\n    submit: function(e) {\n        e.preventDefault();\n        var task = new Task({title: $('#title').val()});\n        var task = new Task();\n        if (task.set({title: $('#title').val()}, {validate: true})) {\n          this.collection.add(task);\n        }\n    }\n});\n\nvar tasks = new Tasks([\n    {\n        title: 'task1',\n        completed: true\n    },\n    {\n        title: 'task2'\n    },\n    {\n        title: 'task3'\n    }\n]);\nconsole.log(tasks.toJSON());\n\nvar tasksView = new TasksView({collection: tasks});\nvar addTaskView = new AddTaskView({collection: tasks});\n\n$('#tasks').html(tasksView.render().el);\n\n})();\n\n\n",
+      "FolderKey": "757e767940c78bd0e7ef9e52e064f1165d60c66f",
+      "tags": [],
+      "updatedAt": "2016-02-27T13:46:10.107Z",
+      "key": "726c5d2ca18fb9f10df9a22d2f0418282d0a30c8",
+      "createdAt": "2016-02-27T13:42:33.481Z",
+      "mode": "javascript",
+      "id": null
+    },
+    {
+      "id": null,
+      "key": "e50976ab9fa264650dbc8bc5261589d6643e64a5",
+      "title": "Javascript",
+      "content": "# MDN's Tutorials\n\n## 文法とデータ型\n - 変数宣言\n  - let :局所変数\n  - const :定数\n - 変換\n  - parceInt, parceFloat\n\n## 制御フローとエラー処理\n - 条件文\n  - falseと評価される値 (false, undefined, null, 0, NaN, (\"\")空文字)\n - 例外処理文\n  - throw, try..catch, finally\n```Javascript\n// throw エラー内容保持(例:\"error\");\n// try throwがtryブロック内にある場合,catchを実行\n// catch (e) (e = 文字列error)\n// finally エラーに関わらず実行\nfunction test() {\n      try {\n        console.log(0);\n        throw (new Error('The error message')); // new することで詳細に表示\n      } catch(e) {\n        console.log(e.name); // 'Error'\n        console.log(e.message); // 'The error message'\n        return true; // この戻り値は、finally ブロックが\n                     // 完了するまで保留となる\n        console.log(2); // この先は実行されない\n      } finally {\n        console.log(3);\n        return false; // 直前の \"return\" が上書きされる\n        console.log(4); // この先は実行されない\n      }\n      // ここで \"return false\" が実行される\n      console.log(5); // この先は実行されない\n}\ntest();// 0, 1, 3 がログに表示され、false が返される\n```\n\n - Promiseオブジェクト<br>\n    Promiseオブジェクトは処理の延期(deferred)と非同期処理のために使われます。<br>\n    Promiseはまだ完了していないが、いずれ完了する処理を表します。\n  \n  - pending （処理待ち / 未決）: 初期状態で、承認も拒否もされていない状態。\n  - fulfilled （承認 / 可決）: 処理が成功した状態。\n  - rejected （拒否 / 否決）: 処理が失敗した状態。\n  - settled （解決）: Promise オブジェクトが処理待ちでなく、承認か拒否された状態。\n\n\n## ループと反復処理\n - label :プログラム内の他の場所から参照できる識別子を組み込んだ文が作成できる\n  - labelName: for, while, switch, do-while\n - break :最も内側の while、do-while、for、switch を終了する\n  - break labelName :labelNameのループを終了する\n\n - for..in :すべてのオブジェクトのプロパティに対して反復し、プロパティ名とその値を表示する文字列を返す\n - for..of :プロパティの値に対し反復処理する\n```Javascript\n  let arr = [3, 5, 7];\n  arr.foo = \"hello\";\n\n  for (let i in arr) {\n     console.log(i); // logs \"0\", \"1\", \"2\", \"foo\"\n  }\n\n  for (let i of arr) {\n     console.log(i); // logs \"3\", \"5\", \"7\"\n  }\n```\n\n## 関数\n - オブジェクト(非プリミティブな値,arrayなど)を引数に渡し、プロパティの値が変更されるとその値は関数外でも有効になる\n - 引数に新たなオブジェクトを渡している場合は、影響は及ばない\n```javascript\n  function myFunc(theObject) {\n    theObject.make = \"Toyota\";\n  }\n\n  function myFunc(theObject) {\n    theObject = {make: \"Kawasaki\", model: \"Ninja\", year: 2000};\n  }\n\n  var mycar = {make: \"Honda\", model: \"Accord\", year: 1998};\n  var x, y;\n\n  x = mycar.make; // x は \"Honda\" という値になる\n\n  myFunc(mycar);\n  y = mycar.make; // y は \"Toyota\" という値になる\n                  //（プロパティが関数で変更されている）\n```\n - クロージャ :式によって「閉じ込められた」変数を自由に持たせることができる式（通常は一つの関数）のこと<br>\n  関数内にある関数。内部にある関数のことをクロージャという。\n  - 内部の関数へは、外部関数内の文からのみアクセスできます。\n  - 内部の関数はクロージャを形作ります。内部関数は外部関数の引数と変数を利用でき、その一方外部関数は内部関数の引数と変数を利用できません。\n  - クロージャへのアクセス方法 :関数Aの内部にある関数B → A()() :2つめの()が関数Bの引数となる\n\n - argumentsオブジェクト :引数のオブジェクト(method: arguments.lengthなど)\n - アロー関数 (無名関数)\n  - 短縮形の関数 :例 var a3 = a.map( s => s.length );\n  - レキシカルなthis\n\n## 式と演算式\n - 分割代入\n```javascript\n  var foo = [\"one\", \"two\", \"three\"];\n\n  // 分割を行わない代入\n  var one   = foo[0];\n  var two   = foo[1];\n  var three = foo[2];\n\n  // 分割代入\n  var [one, two, three] = foo;\n```\n\n - 条件演算子 :var status = (age >= 18) ? \"adult\" : \"minor\";\n - delete :オブジェクトやオブジェクトのプロパティ、配列の指定されたインデックスの要素を削除する\n  - var trees = new Array(\"redwood\", \"bay\", \"cedar\", \"oak\", \"maple\");<br>\n    delete trees[3];\n - in :指定されたプロパティが指定されたオブジェクトにある場合に true を返す\n  - objectIndex in object\n - instanceof :オブジェクトの種類の確認\n - typeof :オペランドの型を指す文字列を返す\n\n\n## 数値と日付\n - Numberオブジェクト\n  - parseInt(), isInteger()\n \n - Mathオブジェクト\n  - round(), random(), min(), max()\n\n - Dateオブジェクト\n  - newしたとき現在の日時が入る\n\n## テキスト処理\n - Stringオブジェクト\n  - substr, split, trim\n  - シンタックスシュガー :'${a + b}'\n - フォーマット\n  - 日時フォーマット :DateTimeFormatオブジェクト\n  - 数値フォーマット :NumberFormatオブジェクト\n  - 照合 :Collatorオブジェクト 文字列を比較してソートする\n\n\n## インデックス付きコレクション\n - Arrayオブジェクト \n  - foreach, map\n  ```javascript\n    // foreach\n    var colors = ['red', 'green', 'blue'];\n    colors.forEach(function(color) {\n      console.log(color);\n    }); \n    // map (戻り値がある)\n    var a1 = ['a', 'b', 'c'];\n    var a2 = a1.map(function(item) { return item.toUpperCase(); });\n    console.log(a2); // logs A,B,C\n  ```\n  - concat :配列の結合\n  - join :配列の文字列変換\n  - push, pop, shift, unshift, slice\n  - sort, reverse\n  - filter, every, some\n  - array comprehensions\n  ```javascript\n    var numbers = [1, 2, 3, 4];\n    var doubled = [i * 2 for (i of numbers)];\n    console.log(doubled); // logs 2,4,6,8\n  ```\n\n## キー付きコレクション\n - Mapオブジェクト\n```javascript\n  var sayings = new Map();\n  sayings.set(\"dog\", \"woof\");\n  sayings.set(\"cat\", \"meow\");\n  sayings.set(\"elephant\", \"toot\");\n  sayings.size; // 3\n  sayings.get(\"fox\"); // undefined\n  sayings.has(\"bird\"); // false\n  sayings.delete(\"dog\");\n\n  for (var [key, value] of sayings) {\n    console.log(key + \" goes \" + value);\n  }\n  // \"cat goes meow\"\n  // \"elephant goes toot\"\n```\n\n## プロキシ(Proxy: メタプログラミングAPI)\n - プロキシをインスタンス化した変数に代入する際にset Methodが呼び出され、<br>\n   値を取得する際にget Methodが呼び出される\n - バリデーション例\n```javascript\n  let validator = {\n    set: function(obj, prop, value) {\n      if (prop === 'age') {\n        if (!Number.isInteger(value)) {\n          throw new TypeError('年齢が整数ではありません');\n        }\n        if (value > 200) {\n          throw new RangeError('年齢が不正なようです');\n        }\n      }\n\n      // 値を保存する既定の挙動\n      obj[prop] = value;\n    }\n  };\n\n  let person = new Proxy({}, validator);\n\n  person.age = 100;\n  console.log(person.age); // 100\n  person.age = 'young'; // 例外が投げられる\n  person.age = 300; // 例外が投げられる\n```\n - 値補正と追加プロパティ\n```javascript\n  let products = new Proxy({\n  browsers: ['Internet Explorer', 'Netscape']\n  },\n  {\n  get: function(obj, prop) {\n    // 追加プロパティ\n    if (prop === 'latestBrowser') {\n      return obj.browsers[obj.browsers.length - 1];\n    }\n\n    // 値を返す既定の挙動\n    return obj[prop];\n  },\n  set: function(obj, prop, value) {\n    // 追加プロパティ\n    if (prop === 'latestBrowser') {\n      obj.browsers.push(value);\n      return;\n    }\n\n    // 値が配列でなければ変換\n    if (typeof value === 'string') {\n      value = [value];\n    }\n\n    // 値を保存する既定の挙動\n    obj[prop] = value;\n  }\n  });\n\n  console.log(products.browsers); // ['Internet Explorer', 'Netscape']\n  products.browsers = 'Firefox'; // (間違えて) 文字列を渡す\n  console.log(products.browsers); // ['Firefox'] <- 問題ありません、値は配列になっています\n\n  products.latestBrowser = 'Chrome';\n  console.log(products.browsers); // ['Firefox', 'Chrome']\n  console.log(products.latestBrowser); // 'Chrome'\n```\n\n## リフレクト（Reflect: ビルドインオブジェクト）\n - Reflectはproxy handler methodsと同じ名前をもち、Objectのメソッドのいくつかと重複する静的な関数を提供します\n\n",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "757e767940c78bd0e7ef9e52e064f1165d60c66f",
+      "updatedAt": "2016-02-27T13:39:09.454Z",
+      "createdAt": "2016-02-27T13:39:09.454Z"
+    },
+    {
+      "id": null,
+      "key": "926f134163ef88c3c1380c74054c30ee1ba31f18",
+      "title": "Underscore.js",
+      "content": "\n## shuffle\n```javascript\n - x = _.shuffle([2, 8 , 10, 3]);\n```\n\n## each / map\n```javascript\n  _.each([2, 5, 8], function(num) {\n    console.log(num * 2);\n  });\n\n  var x = _.map([2, 5, 8], function(num) {\n    return num * 2;\n  });\n```\n\n## find / filter / contains\n```javascript\n  var a = [2, 5, 8, 42, 12];\n  \n  x = _.find(a, function(num) {\n    return num > 5;\n  });\n  // x = 8\n\n  x = _.filter(a, function(num) {\n      return num > 5;\n  });\n  // x = 8, 42, 12\n  \n  x = _.contains(a, 5);\n  // x = true\n\n```\n\n## groupBy / countBy / sortBy\n```javascript\n  x = _.groupBy(a, function(num) {\n    return num % 3;\n  });\n\n  x = _.countBy(a, function(num){\n      return num % 2 == 0 ? 'even' : 'odd';\n  });\n\n  x = _.sortBy(a, function(num) {\n      return Math.sin(num);\n  });\n  \n  // 文字列の長さで並び替え\n  x = _.sortBy([\"me\", \"i\", \"and\"], 'length');\n```\n\n## union / intersection / difference\n```javascript\n  var a = [1, 2, 5];\n  var b = [5, 2, 8];\n  var x;\n\n  x = _.union(a, b); // x = 1, 2, 5, 8\n  x = _.intersection(a, b); // x = 2, 5\n  x = _.difference(a, b); // (bには無いaの要素): x = 1\n\n  x = _.uniq([2, 5, 2, 10, 5]); // x = 2, 5, 10\n```\n\n```javascript\n  var x;\n  var user = {\n    name: 'taguchi',\n    score: 80,\n    web: 'http://dotinstall.com'\n  };\n\n  x = _.keys(user); // x = name, score, web\n  x = _.values(user); // x = 'taguchi', 80, 'http:~'\n  x = _.invert(user); // key と valueを逆にする\n  x = _.has(user, \"name\"); // true (keyがあるか)\n\n  // isEmpty, isString, isNull, isNumber\n  x = _.isString(user.score);\n \n```\n\n## range / random / escape / times\n```javascript\n  var x;\n \n  x = _.range(1, 11, 2); // x = 1, 3, 5, 7, 9, 11\n  x = _.random(3, 10); // x = 3 ~ 10 までの乱数\n  x = _.escape();\n\n  _.times(5, function() {\n      console.log('hello');\n  });\n\n```\n\n## メソッドチェイン\n```javascript\n  var x;\n  var a = [2, 5, 10, 8];\n\n  x = _.chain(a)\n       .shuffle()\n       .map(function (num) {\n           return num * 2;\n       })\n       .value();\n```\n\n## template\n - <% %> javascriptとして出力\n - <%= %> 変数の出力\n - <%- %> エスケープして変数を出力\n```javascript\n  var x;\n  var user = {\n      name: 'taguchi',\n      score: 50,\n      web: 'http://dotinstall.com'\n  };\n\n  var tpl = \"<% console.log('hello from tpl'); %><li><%- name %> (<%- score %>)</li>\";\n  x = _.template(tpl, user);\n```",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "757e767940c78bd0e7ef9e52e064f1165d60c66f",
+      "updatedAt": "2016-02-27T13:37:52.114Z",
+      "createdAt": "2016-02-27T13:37:52.114Z"
+    },
+    {
+      "title": "Node.js",
+      "content": "\n## nvm (Node Version Manager)のインストール\n    git clone git://github.com/creationix/nvm.git ~/.nvm\n\n## nvmコマンドのパスを通す(.zshrc)\n    if [[ -s ~/.nvm/nvm.sh ]];\n     then source ~/.nvm/nvm.sh\n    fi ]]\n\n## nvmでNodeをインストール\n    nvm install バージョン\n\n## nvm その他コマンド\n    nvm ls :インストールしているバージョン表示\n    nvm use バージョン :バージョンの使用\n\n## package.jsonの生成\n    npm init\n\n## パッケージのインストール\n    npm install package-name　:ローカルにインストール\n    npm install -g package-name　:グローバルにインストール\n    npm install --save package_name :package.jsonのdependenciesにバージョン付きで書き込む\n    npm install --save--dev package_name :package.jsonのdevDependenciesにバージョン付きで書き込む\n\n",
+      "FolderKey": "757e767940c78bd0e7ef9e52e064f1165d60c66f",
+      "tags": [],
+      "updatedAt": "2016-02-27T13:36:23.345Z",
+      "key": "5e6a9e901b993d03e948216e19ec26382c29c25e",
+      "createdAt": "2016-02-27T13:35:02.004Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "PHPStorm's Refarence",
+      "content": "# ショートカットキー\n\n## SSH Terminalの表示/非表示\n    Alt + F12\n\n\n",
+      "FolderKey": "cd051b303ab75af11b7158c29230189e8f220714",
+      "tags": [
+        "test"
+      ],
+      "updatedAt": "2016-02-25T14:51:02.906Z",
+      "key": "dfea66f2d886ef979731aaa43024e9ba27a54e79",
+      "createdAt": "2015-11-20T15:42:43.615Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "条件文",
+      "content": "### 変数の存在チェック\n    if (typeof(var) === 'undefined')\n    ",
+      "FolderKey": "757e767940c78bd0e7ef9e52e064f1165d60c66f",
+      "tags": [],
+      "updatedAt": "2016-02-10T14:32:20.635Z",
+      "key": "29cd375e16016a32854f7aa4ac1142efc27395a5",
+      "createdAt": "2016-02-10T14:31:51.259Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "id": null,
+      "key": "4f1a72a97a17900b47f978d01f0c8a241a138702",
+      "title": "テーブル設定",
+      "content": "### NULLを許可する\n    ALTER TABLE TableName MODIFY ColumnName VARCHAR(255);\n",
+      "mode": "markdown",
+      "tags": [],
+      "FolderKey": "f1d5e560d49f6c9e1b22b46dff2752e7f9505bc9",
+      "updatedAt": "2016-02-10T14:30:51.616Z",
+      "createdAt": "2016-02-10T14:30:51.618Z"
+    },
+    {
+      "title": "Errors",
+      "content": "### error: insufficient permission for adding an object to repository database .git/objects\n\n    chmod -R 777 .git/.objects\n    \n### fatal: could not open '.git/COMMIT_EDITMSG': Permission denied\n\n    rm -rf .git/COMMIT_EDITMSG\n    ",
+      "FolderKey": "be62800274db957294fb544d2e184f0b8521e6bf",
+      "tags": [],
+      "updatedAt": "2016-02-07T09:10:47.610Z",
+      "key": "6947d0782190183686c597f123a3e04d0f4f8001",
+      "createdAt": "2016-02-07T09:03:24.556Z",
+      "mode": "markdown",
+      "id": null
+    }
+  ],
+  "folders": [
+    {
+      "name": "default",
+      "key": "7cc4ee61c211092e218bd7981921d32a64c82f80"
+    },
+    {
+      "name": "Ruby",
+      "color": 0,
+      "key": "7f49151f505767cfa11cc7cbe086a71cec3ef714",
+      "createdAt": "2015-11-20T15:43:39.815Z",
+      "updatedAt": "2015-11-20T15:43:39.815Z"
+    },
+    {
+      "name": "PHP",
+      "color": 6,
+      "key": "cd051b303ab75af11b7158c29230189e8f220714",
+      "createdAt": "2015-11-20T15:43:49.316Z",
+      "updatedAt": "2015-11-20T15:43:49.316Z"
+    },
+    {
+      "name": "Javascript",
+      "color": 4,
+      "key": "757e767940c78bd0e7ef9e52e064f1165d60c66f",
+      "createdAt": "2015-11-20T15:44:18.747Z",
+      "updatedAt": "2015-11-20T15:44:18.747Z"
+    },
+    {
+      "name": "CSS",
+      "color": 2,
+      "key": "d9e25a43322f385b10068e4525945cca5681375c",
+      "createdAt": "2015-11-20T15:44:31.751Z",
+      "updatedAt": "2015-11-20T15:44:31.751Z"
+    },
+    {
+      "name": "Git",
+      "color": 1,
+      "key": "be62800274db957294fb544d2e184f0b8521e6bf",
+      "createdAt": "2015-11-22T00:43:33.768Z",
+      "updatedAt": "2015-11-22T00:43:33.768Z"
+    },
+    {
+      "name": "Vim",
+      "color": 3,
+      "key": "2af48999cf2d338ca56f287b19a943c13a050403",
+      "createdAt": "2015-11-22T00:43:43.164Z",
+      "updatedAt": "2015-11-22T00:43:43.164Z"
+    },
+    {
+      "name": "Shell",
+      "color": 7,
+      "key": "1eda03a1c8ef260340baf87c03c00178910d6f9a",
+      "createdAt": "2016-02-07T08:41:23.547Z",
+      "updatedAt": "2016-02-07T08:41:23.547Z"
+    },
+    {
+      "name": "Linux",
+      "color": 4,
+      "key": "ee265f73052ddf5a5291b69d6c39e856e32732de",
+      "createdAt": "2016-02-08T02:54:48.884Z",
+      "updatedAt": "2016-02-08T02:54:48.884Z"
+    },
+    {
+      "name": "MySQL",
+      "color": 3,
+      "key": "f1d5e560d49f6c9e1b22b46dff2752e7f9505bc9",
+      "createdAt": "2016-02-10T05:37:19.457Z",
+      "updatedAt": "2016-02-10T05:37:19.457Z"
+    },
+    {
+      "name": "Database",
+      "color": 3,
+      "key": "49cde2d06a158c8921a7f0ee2bc4f67c4c0af924",
+      "createdAt": "2016-02-27T13:53:13.764Z",
+      "updatedAt": "2016-02-27T13:53:13.764Z"
+    },
+    {
+      "name": "サーバ環境",
+      "color": 2,
+      "key": "98a8894132465e155db52c45743c95c9f0fa8732",
+      "createdAt": "2016-02-27T14:18:49.940Z",
+      "updatedAt": "2016-02-27T14:43:43.786Z"
+    },
+    {
+      "name": "Swift",
+      "color": 0,
+      "key": "2d62fc3971da99002d399e0c6de7acd112265317",
+      "createdAt": "2016-02-27T14:24:40.017Z",
+      "updatedAt": "2016-02-27T14:24:40.017Z"
+    },
+    {
+      "name": "Vagrant",
+      "color": 5,
+      "key": "1f05d3f49620d674ad6253a7f18f71d9b4430a2b",
+      "createdAt": "2016-03-14T02:29:38.314Z",
+      "updatedAt": "2016-03-14T02:29:38.314Z"
+    },
+    {
+      "name": "MacOS",
+      "color": 0,
+      "key": "386d41efa3a28a2b2c6ddcc471aab614e0fa90e7",
+      "createdAt": "2016-04-02T09:44:29.944Z",
+      "updatedAt": "2016-04-02T09:44:29.944Z"
+    }
+  ],
+  "version": "0.4"
+}

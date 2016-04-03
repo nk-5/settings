@@ -70,7 +70,7 @@ sudo sed -i -e "s/enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
 
 
 ##### install git
-# sudo yum install -y git
+# sudo yum install -y git mercurial
 
 
 ##### install rubyenv and instal lasted ruby version

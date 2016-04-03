@@ -27,8 +27,7 @@ sudo rpm -q rpmforge-release
 sudo yum -y install epel-release
 
 ### Remi
-sudo rpm --import http://rpms.famillecollet.com/RPM-GPG-KEY-remi
-sudo rpm -ivh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+sudo rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 
 ### ELRepo
 sudo rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
