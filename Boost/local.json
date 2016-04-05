@@ -1,6 +1,28 @@
 {
   "articles": [
     {
+      "title": "CentOS7 初期設定",
+      "content": "\n## yum の更新\n    $ sudo yum -y update\n\n## サードパーティ製リポジトリのインストール\n\n### yum-plugin-priorities\n\n    # yum -y install yum-plugin-priorities\n    # vim /etc/yum.repos.d/CentOS-Base.repo // priority=1を入れておく\n    # sed -i '14i priority=1' /etc/yum.repos.d/CentOS-Base.repo // base\n    # sed -i '23i priority=1' /etc/yum.repos.d/CentOS-Base.repo // updates\n    # sed -i '32i priority=1' /etc/yum.repos.d/CentOS-Base.repo // extras\n    \n### RPMforge\n \n    rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt\n    rpm -ivh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm\n    rpm -q rpmforge-release // インストール確認\n\n### EPEL\n    yum -y install epel-release\n    rpm -Uvh http://ftp.iij.ad.jp/pub/linux/fedora/epel/7/x86_64/e/epel-release-7-5.noarch.rpm\n    // rpm --import http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7\n    // rpm -ivh http://ftp-srv2.kddilabs.jp/Linux/packages/fedora/epel/7/x86_64/e/epel-release-7-5.noarch.rpm\n    // rpm -q epel-release // インストール確認\n\n### Remi\n    rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm\n    rpm -q remi-release // インストール確認\n\n### ELRepo\n    wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm\n    rpm -Uvh remi-release-7.rpm\n    rpm -q elrepo-release // インストール確認\n\n### ミラーサイトが404エラーを返す場合\n\n現状、fastestmirror が有効の場合 RPMforge でミラーサイトが404エラー返すことがあるので、\nRPMforgeを導入したい場合、ミラーサイトが出揃うまではfastestmirror を無効にしておいたほうがよさげです。\n\n    # vim /etc/yum/pluginconf.d/fastestmirror.conf\n    [main]\n    #enabled=1\n    enabled=0\n\n### リポジトリの設定\n    # vim /etc/yum.repos.d/\n\n\n## ファイアウォールの停止\n    # systemctl firewall stop\n    # systemctl disable firewall\n\n## SELinuxの無効化\n    $ getenforce // 確認：Enforcing（有効） or Permissive（無効）\n    # setenforce 0 // 無効化\n    # vim /etc/sysconfig/selinux\n    SELINUX=enforcing\n    ↓\n    SELINUX=disabled ←変更(起動時に無効にする)\n    \n    # sed -i -e \"s/SELINUX=enforcing/SELINUX=disabled/\" /etc/sysconfig/selinux //これでもOK\n\n## 文字コードの変更\n    # localectl // 確認\n    # localectl set-locale LANG=ja_JP.UTF-8 // UTF-8に変更\n\n",
+      "FolderKey": "ee265f73052ddf5a5291b69d6c39e856e32732de",
+      "tags": [],
+      "updatedAt": "2016-04-04T13:02:22.314Z",
+      "key": "d939c81018c538531fbfc3eeb781e7be7d9704aa",
+      "createdAt": "2016-03-16T01:48:02.332Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
+      "title": "プラグインマネージャー",
+      "content": "***NeoBundleは開発終了となったため、Dein.vimを利用する***\n\n## Dein.vimのインストール\n    $ curl https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh -o /tmp/installer.sh\n    $ sh /tmp/installer.sh ~/.vim/dein\n\n*.vimrcの初期化: shellの実行で表示された内容を.vimrcに保存する*\n\n## プラグインのインストール\n    :call dein#install()\n    \n## プラグインのアップデート\n    :call dein#update()\n\n## インストールしているプラグインを表示\n    :Unite dein\n\n## プラグインをtomlファイルにまとめたときの注意点\n*今のところ.vimrcのbegin ~ end （tomlをloadしているとこ）を変更しないとインストールできない*\n",
+      "FolderKey": "2af48999cf2d338ca56f287b19a943c13a050403",
+      "tags": [],
+      "updatedAt": "2016-04-03T13:40:27.603Z",
+      "key": "bb3d52b7e7a4b179e2f962304765810c698f4429",
+      "createdAt": "2016-04-03T06:00:43.027Z",
+      "mode": "markdown",
+      "id": null
+    },
+    {
       "title": "Luaを有効にする",
       "content": "\n## Vimを削除する\n    $ udo yum remove vim-enhanced\n\n## 必要モジュールのインストール\n    $ cd /usr/local/src\n    $ sudo yum install mercurial ncurses-devel lua lua-devel\n\n## Vimをmakeインストール\n    $ hg clone https://vim.googlecode.com/hg/ vim\n    $ cd vim\n    $ ./configure \\\n        --with-features=huge \\\n        --enable-multibyte \\\n        --enable-luainterp=dynamic \\\n        --enable-gpm \\\n        --enable-cscope \\\n        --enable-fontset\n    $ make\n    $ make install",
       "FolderKey": "2af48999cf2d338ca56f287b19a943c13a050403",
@@ -21,28 +43,6 @@
       "FolderKey": "ee265f73052ddf5a5291b69d6c39e856e32732de",
       "updatedAt": "2016-04-03T07:16:40.234Z",
       "createdAt": "2016-03-16T17:36:01.094Z"
-    },
-    {
-      "title": "プラグインマネージャー",
-      "content": "***NeoBundleは開発終了となったため、Dein.vimを利用する***\n\n## Dein.vimのインストール\n    $ curl https://raw.githubusercontent.com/Shougo/dein.vim/master/bin/installer.sh -o /tmp/installer.sh\n    $ sh /tmp/installer.sh ~/.vim/dein\n\n*.vimrcの初期化: shellの実行で表示された内容を.vimrcに保存する*\n\n## プラグインのインストール\n    :call dein#install()\n    \n## プラグインのアップデート\n    :call dein#update()\n\n## インストールしているプラグインを表示\n    :Unite dein\n\n## プラグインをtomlファイルにまとめたときの注意点\n*今のところ.vimrcのbegin ~ end （tomlをloadしているとこ）を変更しないとインストールできない*\n",
-      "FolderKey": "2af48999cf2d338ca56f287b19a943c13a050403",
-      "tags": [],
-      "updatedAt": "2016-04-03T13:40:27.603Z",
-      "key": "bb3d52b7e7a4b179e2f962304765810c698f4429",
-      "createdAt": "2016-04-03T06:00:43.027Z",
-      "mode": "markdown",
-      "id": null
-    },
-    {
-      "title": "CentOS7 初期設定",
-      "content": "\n## yum の更新\n    $ sudo yum -y update\n\n## サードパーティ製リポジトリのインストール\n\n### yum-plugin-priorities\n\n    # yum -y install yum-plugin-priorities\n    # vim /etc/yum.repos.d/CentOS-Base.repo // priority=1を入れておく\n    # sed -i '14i priority=1' /etc/yum.repos.d/CentOS-Base.repo // base\n    # sed -i '23i priority=1' /etc/yum.repos.d/CentOS-Base.repo // updates\n    # sed -i '32i priority=1' /etc/yum.repos.d/CentOS-Base.repo // extras\n    \n### RPMforge\n \n    rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt\n    rpm -ivh http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el7.rf.x86_64.rpm\n    rpm -q rpmforge-release // インストール確認\n\n### EPEL\n    yum -y install epel-release\n    // rpm --import http://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7\n    // rpm -ivh http://ftp-srv2.kddilabs.jp/Linux/packages/fedora/epel/7/x86_64/e/epel-release-7-5.noarch.rpm\n    // rpm -q epel-release // インストール確認\n\n### Remi\n    rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-7.rpm\n    rpm -q remi-release // インストール確認\n\n### ELRepo\n    wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm\n    rpm -Uvh remi-release-7.rpm\n    rpm -q elrepo-release // インストール確認\n\n### ミラーサイトが404エラーを返す場合\n\n現状、fastestmirror が有効の場合 RPMforge でミラーサイトが404エラー返すことがあるので、\nRPMforgeを導入したい場合、ミラーサイトが出揃うまではfastestmirror を無効にしておいたほうがよさげです。\n\n    # vim /etc/yum/pluginconf.d/fastestmirror.conf\n    [main]\n    #enabled=1\n    enabled=0\n\n### リポジトリの設定\n    # vim /etc/yum.repos.d/\n\n\n## ファイアウォールの停止\n    # systemctl firewall stop\n    # systemctl disable firewall\n\n## SELinuxの無効化\n    $ getenforce // 確認：Enforcing（有効） or Permissive（無効）\n    # setenforce 0 // 無効化\n    # vim /etc/sysconfig/selinux\n    SELINUX=enforcing\n    ↓\n    SELINUX=disabled ←変更(起動時に無効にする)\n    \n    # sed -i -e \"s/SELINUX=enforcing/SELINUX=disabled/\" /etc/sysconfig/selinux //これでもOK\n\n## 文字コードの変更\n    # localectl // 確認\n    # localectl set-locale LANG=ja_JP.UTF-8 // UTF-8に変更\n\n",
-      "FolderKey": "ee265f73052ddf5a5291b69d6c39e856e32732de",
-      "tags": [],
-      "updatedAt": "2016-04-03T05:08:47.106Z",
-      "key": "d939c81018c538531fbfc3eeb781e7be7d9704aa",
-      "createdAt": "2016-03-16T01:48:02.332Z",
-      "mode": "markdown",
-      "id": null
     },
     {
       "title": "Homebrew",
